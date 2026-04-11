@@ -1,4 +1,4 @@
-package com.uade.ecommerceapi.exception;
+package com.uade.tpo.marketplace.exception;
 
 public class ResourceNotFoundException extends RuntimeException {
 

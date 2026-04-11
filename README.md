@@ -1,15 +1,20 @@
-# E-commerce API Base
+# Marketplace Camisetas API
 
-Proyecto base en Spring Boot organizado en 3 capas:
+Backend REST para el TPO de Aplicaciones Interactivas. El proyecto modela un e-commerce de camisetas titulares y suplentes de selecciones del Mundial 2026.
 
-- `controller`: expone endpoints REST.
-- `service`: contiene la logica de negocio.
-- `repository`: encapsula el acceso a datos.
+## Stack
 
-## Estructura inicial
+- Java 8
+- Spring Boot 2.7.18
+- Spring Web
+- Spring Data JPA
+- H2 Database
+- Maven
+
+## Estructura
 
 ```text
-src/main/java/com/uade/ecommerceapi
+src/main/java/com/uade/tpo/marketplace
 |- controller
 |- dto
 |- exception
@@ -18,27 +23,67 @@ src/main/java/com/uade/ecommerceapi
 |- service
 ```
 
-## Recurso de ejemplo
+## Base de Datos
 
-Se incluye una vertical simple de `Product` para mostrar el flujo completo:
+La app usa H2 en modo archivo:
 
-`ProductController -> ProductService -> ProductRepository`
+```text
+jdbc:h2:file:./data/marketplace
+```
 
-Por ahora la persistencia es en memoria mediante `InMemoryProductRepository`. Esto permite:
+Consola:
 
-- trabajar la arquitectura por capas desde el inicio;
-- probar endpoints sin base de datos;
-- reemplazar luego el repositorio por JPA sin cambiar el contrato de la capa de servicio.
+```text
+http://localhost:8080/h2-console
+```
 
-## Siguiente etapa recomendada
+Credenciales:
 
-1. Agregar `spring-boot-starter-data-jpa` y el driver de la base elegida.
-2. Mover `model` hacia entidades JPA reales en un paquete `entity`.
-3. Reemplazar `InMemoryProductRepository` por interfaces que extiendan `JpaRepository`.
-4. Incorporar Spring Security + JWT.
-5. Separar modulos de autenticacion, usuarios, productos, pedidos y pagos segun la consigna.
+```text
+User Name: sa
+Password:
+```
 
-## Nota de compatibilidad
+## Datos
 
-El entorno actual tiene Java 8 instalado, por eso el proyecto queda preparado con Spring Boot `2.7.18`.
-Si mas adelante subis a Java 17 o superior, conviene migrar a Spring Boot 3.x.
+La base no se carga automaticamente. Todos los datos deben cargarse mediante Insomnia usando los endpoints REST.
+
+Orden recomendado:
+
+1. Crear generos.
+2. Crear talles.
+3. Crear tipos de camiseta.
+4. Crear paises.
+5. Crear camisetas.
+
+## Endpoints Actuales
+
+```text
+GET  /api/catalogo/generos
+POST /api/catalogo/generos
+
+GET  /api/catalogo/talles
+POST /api/catalogo/talles
+
+GET  /api/catalogo/tipos-camiseta
+POST /api/catalogo/tipos-camiseta
+
+GET  /api/catalogo/paises
+POST /api/catalogo/paises
+
+GET  /api/camisetas
+GET  /api/camisetas/{id}
+POST /api/camisetas
+```
+
+## Ejecucion
+
+```powershell
+.\mvnw.cmd -s .mvn\settings.xml spring-boot:run
+```
+
+## Verificacion
+
+```powershell
+.\mvnw.cmd -s .mvn\settings.xml "-Dmaven.compiler.fork=true" test
+```
