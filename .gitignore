@@ -1,5 +1,7 @@
 target/
 .tools/
+.m2/
+data/
 
 *.class
 *.log
