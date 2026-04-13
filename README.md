@@ -9,6 +9,7 @@ Backend REST para el TPO de Aplicaciones Interactivas. El proyecto modela un e-c
 - Spring Web
 - Spring Data JPA
 - H2 Database
+- Swagger / OpenAPI
 - Maven
 
 ## Estructura
@@ -42,6 +43,20 @@ Credenciales:
 ```text
 User Name: sa
 Password:
+```
+
+## Swagger
+
+Con la app levantada, la documentacion interactiva de endpoints esta disponible en:
+
+```text
+http://localhost:8080/swagger-ui/index.html
+```
+
+El JSON OpenAPI se puede consultar en:
+
+```text
+http://localhost:8080/v3/api-docs
 ```
 
 ## Datos
