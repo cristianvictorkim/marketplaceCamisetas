@@ -89,6 +89,12 @@ POST /api/auth/register
 POST /api/auth/login
 POST /api/auth/bootstrap-admin
 
+GET    /api/carrito
+POST   /api/carrito/items
+PATCH  /api/carrito/items/{id}
+DELETE /api/carrito/items/{id}
+DELETE /api/carrito
+
 GET  /api/catalogo/generos
 GET  /api/catalogo/generos/{id}
 POST /api/catalogo/generos
@@ -180,6 +186,37 @@ Content-Type: application/json
 ```
 
 Quedan publicos los endpoints de lectura de camisetas/catalogo, H2, Swagger y auth. Los endpoints de escritura de camisetas/catalogo requieren token de un usuario con rol `ADMIN`.
+
+## Carrito
+
+Los endpoints de carrito requieren token de usuario autenticado.
+
+Agregar item:
+
+```http
+POST /api/carrito/items
+Authorization: Bearer TOKEN
+Content-Type: application/json
+
+{
+  "varianteId": 1,
+  "cantidad": 2
+}
+```
+
+Actualizar cantidad:
+
+```http
+PATCH /api/carrito/items/1
+Authorization: Bearer TOKEN
+Content-Type: application/json
+
+{
+  "cantidad": 3
+}
+```
+
+Si se agrega dos veces la misma variante, se suma la cantidad. No se permite superar el stock disponible.
 
 ## Filtros de camisetas
 
