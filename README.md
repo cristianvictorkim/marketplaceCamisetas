@@ -8,6 +8,8 @@ Backend REST para el TPO de Aplicaciones Interactivas. El proyecto modela un e-c
 - Spring Boot 2.7.18
 - Spring Web
 - Spring Data JPA
+- Spring Security
+- JWT
 - H2 Database
 - Swagger / OpenAPI
 - Maven
@@ -16,11 +18,13 @@ Backend REST para el TPO de Aplicaciones Interactivas. El proyecto modela un e-c
 
 ```text
 src/main/java/com/uade/tpo/marketplace
+|- config
 |- controller
 |- dto
 |- exception
 |- model
 |- repository
+|- security
 |- service
 ```
 
@@ -59,21 +63,38 @@ El JSON OpenAPI se puede consultar en:
 http://localhost:8080/v3/api-docs
 ```
 
+Para probar endpoints protegidos desde Swagger, usar el boton `Authorize` y pegar el token JWT. En Insomnia/Postman, enviar el header:
+
+```text
+Authorization: Bearer TOKEN
+```
+
 ## Datos
 
 La base no se carga automaticamente. Todos los datos deben cargarse mediante Insomnia usando los endpoints REST.
 
 Orden recomendado:
 
-1. Crear generos.
-2. Crear talles.
-3. Crear tipos de camiseta.
-4. Crear paises.
-5. Crear camisetas.
+1. Crear el primer admin con `/api/auth/bootstrap-admin`.
+2. Crear generos.
+3. Crear talles.
+4. Crear tipos de camiseta.
+5. Crear paises.
+6. Crear camisetas.
 
 ## Endpoints Actuales
 
 ```text
+POST /api/auth/register
+POST /api/auth/login
+POST /api/auth/bootstrap-admin
+
+GET    /api/carrito
+POST   /api/carrito/items
+PATCH  /api/carrito/items/{id}
+DELETE /api/carrito/items/{id}
+DELETE /api/carrito
+
 GET  /api/catalogo/generos
 GET  /api/catalogo/generos/{id}
 POST /api/catalogo/generos
@@ -116,7 +137,88 @@ PUT  /api/camisetas/{id}/descuento
 DELETE /api/camisetas/{id}/descuento
 ```
 
-### Filtros de camisetas
+## Autenticacion
+
+Primer admin:
+
+```http
+POST /api/auth/bootstrap-admin
+Content-Type: application/json
+
+{
+  "nombre": "Admin",
+  "apellido": "Marketplace",
+  "email": "admin@mail.com",
+  "password": "123456",
+  "direccion": "UADE",
+  "telefono": "1100000000"
+}
+```
+
+Este endpoint solo funciona si todavia no existe ningun usuario con rol `ADMIN`.
+
+Registro:
+
+```http
+POST /api/auth/register
+Content-Type: application/json
+
+{
+  "nombre": "Cristian",
+  "apellido": "Kim",
+  "email": "cris@mail.com",
+  "password": "123456",
+  "direccion": "Av. Siempre Viva 123",
+  "telefono": "1122334455"
+}
+```
+
+Login:
+
+```http
+POST /api/auth/login
+Content-Type: application/json
+
+{
+  "email": "cris@mail.com",
+  "password": "123456"
+}
+```
+
+Quedan publicos los endpoints de lectura de camisetas/catalogo, H2, Swagger y auth. Los endpoints de escritura de camisetas/catalogo requieren token de un usuario con rol `ADMIN`.
+
+## Carrito
+
+Los endpoints de carrito requieren token de usuario autenticado.
+
+Agregar item:
+
+```http
+POST /api/carrito/items
+Authorization: Bearer TOKEN
+Content-Type: application/json
+
+{
+  "varianteId": 1,
+  "cantidad": 2
+}
+```
+
+Actualizar cantidad:
+
+```http
+PATCH /api/carrito/items/1
+Authorization: Bearer TOKEN
+Content-Type: application/json
+
+{
+  "cantidad": 3
+}
+```
+
+Si se agrega dos veces la misma variante, se suma la cantidad. No se permite superar el stock disponible.
+
+## Filtros de camisetas
 
 El listado de camisetas acepta filtros opcionales por query params:
 
