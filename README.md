@@ -148,7 +148,7 @@ Content-Type: application/json
 {
   "nombre": "Admin",
   "apellido": "Marketplace",
-  "email": "admin@mail.com",
+  "email": "admin@uade.edu.ar",
   "password": "123456",
   "direccion": "UADE",
   "telefono": "1100000000"
@@ -166,9 +166,9 @@ Content-Type: application/json
 {
   "nombre": "Cristian",
   "apellido": "Kim",
-  "email": "cris@mail.com",
+  "email": "ckim@uade.edu.ar",
   "password": "123456",
-  "direccion": "Av. Siempre Viva 123",
+  "direccion": "Av. Gaona 3545",
   "telefono": "1122334455"
 }
 ```
@@ -180,7 +180,7 @@ POST /api/auth/login
 Content-Type: application/json
 
 {
-  "email": "cris@mail.com",
+  "email": "ckim@uade.edu.ar",
   "password": "123456"
 }
 ```
