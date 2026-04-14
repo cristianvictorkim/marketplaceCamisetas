@@ -8,6 +8,8 @@ Backend REST para el TPO de Aplicaciones Interactivas. El proyecto modela un e-c
 - Spring Boot 2.7.18
 - Spring Web
 - Spring Data JPA
+- Spring Security
+- JWT
 - H2 Database
 - Maven
 
@@ -59,6 +61,10 @@ Orden recomendado:
 ## Endpoints Actuales
 
 ```text
+POST /api/auth/register
+POST /api/auth/login
+POST /api/auth/bootstrap-admin
+
 GET  /api/catalogo/generos
 POST /api/catalogo/generos
 
@@ -75,6 +81,62 @@ GET  /api/camisetas
 GET  /api/camisetas/{id}
 POST /api/camisetas
 ```
+
+## Autenticacion
+
+Primer admin:
+
+```http
+POST /api/auth/bootstrap-admin
+Content-Type: application/json
+
+{
+  "nombre": "Admin",
+  "apellido": "Marketplace",
+  "email": "admin@mail.com",
+  "password": "123456",
+  "direccion": "UADE",
+  "telefono": "1100000000"
+}
+```
+
+Este endpoint solo funciona si todavia no existe ningun usuario con rol `ADMIN`.
+
+Registro:
+
+```http
+POST /api/auth/register
+Content-Type: application/json
+
+{
+  "nombre": "Cristian",
+  "apellido": "Kim",
+  "email": "cris@mail.com",
+  "password": "123456",
+  "direccion": "Av. Siempre Viva 123",
+  "telefono": "1122334455"
+}
+```
+
+Login:
+
+```http
+POST /api/auth/login
+Content-Type: application/json
+
+{
+  "email": "cris@mail.com",
+  "password": "123456"
+}
+```
+
+La respuesta devuelve un token JWT. Para consumir endpoints protegidos, enviar:
+
+```text
+Authorization: Bearer TOKEN
+```
+
+Quedan publicos los endpoints de lectura de camisetas/catalogo, H2 y auth. Los endpoints de escritura de camisetas/catalogo requieren token de un usuario con rol `ADMIN`.
 
 ## Ejecucion
 
