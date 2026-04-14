@@ -11,17 +11,20 @@ Backend REST para el TPO de Aplicaciones Interactivas. El proyecto modela un e-c
 - Spring Security
 - JWT
 - H2 Database
+- Swagger / OpenAPI
 - Maven
 
 ## Estructura
 
 ```text
 src/main/java/com/uade/tpo/marketplace
+|- config
 |- controller
 |- dto
 |- exception
 |- model
 |- repository
+|- security
 |- service
 ```
 
@@ -46,17 +49,38 @@ User Name: sa
 Password:
 ```
 
+## Swagger
+
+Con la app levantada, la documentacion interactiva de endpoints esta disponible en:
+
+```text
+http://localhost:8080/swagger-ui/index.html
+```
+
+El JSON OpenAPI se puede consultar en:
+
+```text
+http://localhost:8080/v3/api-docs
+```
+
+Para probar endpoints protegidos desde Swagger, usar el boton `Authorize` y pegar el token JWT. En Insomnia/Postman, enviar el header:
+
+```text
+Authorization: Bearer TOKEN
+```
+
 ## Datos
 
 La base no se carga automaticamente. Todos los datos deben cargarse mediante Insomnia usando los endpoints REST.
 
 Orden recomendado:
 
-1. Crear generos.
-2. Crear talles.
-3. Crear tipos de camiseta.
-4. Crear paises.
-5. Crear camisetas.
+1. Crear el primer admin con `/api/auth/bootstrap-admin`.
+2. Crear generos.
+3. Crear talles.
+4. Crear tipos de camiseta.
+5. Crear paises.
+6. Crear camisetas.
 
 ## Endpoints Actuales
 
@@ -66,20 +90,45 @@ POST /api/auth/login
 POST /api/auth/bootstrap-admin
 
 GET  /api/catalogo/generos
+GET  /api/catalogo/generos/{id}
 POST /api/catalogo/generos
+PUT  /api/catalogo/generos/{id}
+DELETE /api/catalogo/generos/{id}
 
 GET  /api/catalogo/talles
+GET  /api/catalogo/talles/{id}
 POST /api/catalogo/talles
+PUT  /api/catalogo/talles/{id}
+DELETE /api/catalogo/talles/{id}
 
 GET  /api/catalogo/tipos-camiseta
+GET  /api/catalogo/tipos-camiseta/{id}
 POST /api/catalogo/tipos-camiseta
+PUT  /api/catalogo/tipos-camiseta/{id}
+DELETE /api/catalogo/tipos-camiseta/{id}
 
 GET  /api/catalogo/paises
+GET  /api/catalogo/paises/{id}
 POST /api/catalogo/paises
+PUT  /api/catalogo/paises/{id}
+DELETE /api/catalogo/paises/{id}
 
 GET  /api/camisetas
 GET  /api/camisetas/{id}
 POST /api/camisetas
+PUT  /api/camisetas/{id}
+DELETE /api/camisetas/{id}
+
+GET  /api/camisetas/{id}/variantes
+POST /api/camisetas/{id}/variantes
+GET  /api/camisetas/variantes/{id}
+PUT  /api/camisetas/variantes/{id}
+PATCH /api/camisetas/variantes/{id}/stock
+DELETE /api/camisetas/variantes/{id}
+
+POST /api/camisetas/{id}/descuento
+PUT  /api/camisetas/{id}/descuento
+DELETE /api/camisetas/{id}/descuento
 ```
 
 ## Autenticacion
@@ -130,13 +179,22 @@ Content-Type: application/json
 }
 ```
 
-La respuesta devuelve un token JWT. Para consumir endpoints protegidos, enviar:
+Quedan publicos los endpoints de lectura de camisetas/catalogo, H2, Swagger y auth. Los endpoints de escritura de camisetas/catalogo requieren token de un usuario con rol `ADMIN`.
+
+## Filtros de camisetas
+
+El listado de camisetas acepta filtros opcionales por query params:
 
 ```text
-Authorization: Bearer TOKEN
+GET /api/camisetas?paisId=1
+GET /api/camisetas?tipoCamisetaId=1
+GET /api/camisetas?generoId=1
+GET /api/camisetas?minPrecio=50000&maxPrecio=120000
+GET /api/camisetas?search=argentina
+GET /api/camisetas?paisId=1&tipoCamisetaId=1&generoId=1&minPrecio=50000&maxPrecio=120000&search=argentina
 ```
 
-Quedan publicos los endpoints de lectura de camisetas/catalogo, H2 y auth. Los endpoints de escritura de camisetas/catalogo requieren token de un usuario con rol `ADMIN`.
+Por defecto solo devuelve camisetas activas.
 
 ## Ejecucion
 
