@@ -66,6 +66,23 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
                 .antMatchers(HttpMethod.POST, "/api/catalogo/**").hasRole("ADMIN")
                 .antMatchers(HttpMethod.PUT, "/api/catalogo/**").hasRole("ADMIN")
                 .antMatchers(HttpMethod.DELETE, "/api/catalogo/**").hasRole("ADMIN")
+                // Usuarios - self endpoints for any authenticated user
+                .antMatchers(HttpMethod.GET, "/api/usuarios/me").authenticated()
+                .antMatchers(HttpMethod.PUT, "/api/usuarios/me").authenticated()
+                .antMatchers(HttpMethod.PATCH, "/api/usuarios/me/password").authenticated()
+                .antMatchers(HttpMethod.DELETE, "/api/usuarios/me").authenticated()
+                // Usuarios - admin CRUD (same base path)
+                .antMatchers(HttpMethod.GET, "/api/usuarios").hasRole("ADMIN")
+                .antMatchers(HttpMethod.GET, "/api/usuarios/*").hasRole("ADMIN")
+                .antMatchers(HttpMethod.POST, "/api/usuarios").hasRole("ADMIN")
+                .antMatchers(HttpMethod.PUT, "/api/usuarios/*").hasRole("ADMIN")
+                .antMatchers(HttpMethod.DELETE, "/api/usuarios/*").hasRole("ADMIN")
+                // Pedidos - estado update is admin-only
+                .antMatchers(HttpMethod.PATCH, "/api/pedidos/*/estado").hasRole("ADMIN")
+                // Compras: Restricciones para que los ADMINs no puedan usar el carrito ni crear pedidos
+                .antMatchers("/api/carrito/**").hasRole("USER")
+                .antMatchers(HttpMethod.POST, "/api/pedidos").hasRole("USER")
+                .antMatchers(HttpMethod.PATCH, "/api/pedidos/*/cancelar").hasRole("USER")
                 .anyRequest().authenticated();
 
         http.addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class);

@@ -60,6 +60,7 @@ public class CarritoService {
         if (item.getId() == null) {
             item.setCarrito(carrito);
             item.setVariante(variante);
+            carrito.getItems().add(item);
         }
         item.setCantidad(nuevaCantidad);
         itemCarritoRepository.save(item);

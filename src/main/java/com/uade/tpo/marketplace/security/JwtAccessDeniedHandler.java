@@ -14,9 +14,16 @@ public class JwtAccessDeniedHandler implements AccessDeniedHandler {
     @Override
     public void handle(HttpServletRequest request, HttpServletResponse response,
                        AccessDeniedException accessDeniedException) throws IOException {
+        String uri = request.getRequestURI();
+        String message = "No tienes los permisos suficientes para acceder a este recurso";
+        
+        if (uri.startsWith("/api/carrito") || (uri.startsWith("/api/pedidos") && "POST".equalsIgnoreCase(request.getMethod()))) {
+            message = "Debes ser un cliente registrado (y no un Administrador) para poder usar el Carrito o realizar pedidos.";
+        }
+
         response.setStatus(HttpServletResponse.SC_FORBIDDEN);
-        response.setContentType("application/json");
-        response.getWriter().write("{\"status\":403,\"error\":\"FORBIDDEN\",\"message\":\"You do not have permission to access this resource\",\"path\":\""
-                + request.getRequestURI() + "\"}");
+        response.setContentType("application/json;charset=UTF-8");
+        response.getWriter().write("{\"status\":403,\"error\":\"FORBIDDEN\",\"message\":\"" + message + "\",\"path\":\""
+                + uri + "\"}");
     }
 }
