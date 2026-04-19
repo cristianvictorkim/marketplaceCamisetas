@@ -79,6 +79,10 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
                 .antMatchers(HttpMethod.DELETE, "/api/usuarios/*").hasRole("ADMIN")
                 // Pedidos - estado update is admin-only
                 .antMatchers(HttpMethod.PATCH, "/api/pedidos/*/estado").hasRole("ADMIN")
+                // Compras: Restricciones para que los ADMINs no puedan usar el carrito ni crear pedidos
+                .antMatchers("/api/carrito/**").hasRole("USER")
+                .antMatchers(HttpMethod.POST, "/api/pedidos").hasRole("USER")
+                .antMatchers(HttpMethod.PATCH, "/api/pedidos/*/cancelar").hasRole("USER")
                 .anyRequest().authenticated();
 
         http.addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class);
