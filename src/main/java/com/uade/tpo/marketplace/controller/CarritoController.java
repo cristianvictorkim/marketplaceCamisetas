@@ -3,8 +3,10 @@ package com.uade.tpo.marketplace.controller;
 import com.uade.tpo.marketplace.dto.CarritoItemCantidadRequest;
 import com.uade.tpo.marketplace.dto.CarritoItemRequest;
 import com.uade.tpo.marketplace.dto.CarritoResponse;
+import com.uade.tpo.marketplace.dto.PedidoResponse;
 import com.uade.tpo.marketplace.security.UsuarioPrincipal;
 import com.uade.tpo.marketplace.service.CarritoService;
+import com.uade.tpo.marketplace.service.PedidoService;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -24,9 +26,11 @@ import javax.validation.Valid;
 public class CarritoController {
 
     private final CarritoService carritoService;
+    private final PedidoService pedidoService;
 
-    public CarritoController(CarritoService carritoService) {
+    public CarritoController(CarritoService carritoService, PedidoService pedidoService) {
         this.carritoService = carritoService;
+        this.pedidoService = pedidoService;
     }
 
     @GetMapping
@@ -58,5 +62,11 @@ public class CarritoController {
     @ResponseStatus(HttpStatus.NO_CONTENT)
     public void clear(@AuthenticationPrincipal UsuarioPrincipal usuarioPrincipal) {
         carritoService.clear(usuarioPrincipal.getId());
+    }
+
+    @PostMapping("/checkout")
+    @ResponseStatus(HttpStatus.CREATED)
+    public PedidoResponse checkout(@AuthenticationPrincipal UsuarioPrincipal usuarioPrincipal) {
+        return pedidoService.checkout(usuarioPrincipal.getId());
     }
 }

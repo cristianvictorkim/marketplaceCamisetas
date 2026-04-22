@@ -94,6 +94,10 @@ POST   /api/carrito/items
 PATCH  /api/carrito/items/{id}
 DELETE /api/carrito/items/{id}
 DELETE /api/carrito
+POST   /api/carrito/checkout
+
+GET /api/pedidos
+GET /api/pedidos/{id}
 
 GET  /api/catalogo/generos
 GET  /api/catalogo/generos/{id}
