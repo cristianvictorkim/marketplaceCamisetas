@@ -1,0 +1,448 @@
+{
+  "info": {
+    "name": "Marketplace Camisetas - Carrito, Checkout y Pedidos",
+    "description": "Flujo completo NACHO: setup (admin + catalogo + camiseta + variante) -> carrito -> checkout -> pedidos.\n\nOrden sugerido:\n1. Bootstrap admin (Setup)\n2. Register user (Setup)\n3. Crear genero, talle, tipo, pais (Setup)\n4. Crear camiseta + variante (Setup)\n5. Carrito: add, get, patch, delete, clear\n6. Checkout\n7. Pedidos: list y get por id\n\nLos tokens y los ids se guardan automaticamente como variables de coleccion.",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "variable": [
+    { "key": "baseUrl", "value": "http://localhost:8080", "type": "string" },
+    { "key": "adminToken", "value": "", "type": "string" },
+    { "key": "userToken", "value": "", "type": "string" },
+    { "key": "generoId", "value": "", "type": "string" },
+    { "key": "talleId", "value": "", "type": "string" },
+    { "key": "tipoCamisetaId", "value": "", "type": "string" },
+    { "key": "paisId", "value": "", "type": "string" },
+    { "key": "camisetaId", "value": "", "type": "string" },
+    { "key": "varianteId", "value": "", "type": "string" },
+    { "key": "itemId", "value": "", "type": "string" },
+    { "key": "pedidoId", "value": "", "type": "string" }
+  ],
+  "item": [
+    {
+      "name": "Setup",
+      "item": [
+        {
+          "name": "Bootstrap Admin",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "const json = pm.response.json();",
+                  "if (json.token) pm.collectionVariables.set('adminToken', json.token);"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"nombre\": \"Admin\",\n  \"apellido\": \"Marketplace\",\n  \"email\": \"admin@uade.edu.ar\",\n  \"password\": \"123456\",\n  \"direccion\": \"UADE\",\n  \"telefono\": \"1100000000\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/auth/bootstrap-admin",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "auth", "bootstrap-admin"]
+            }
+          }
+        },
+        {
+          "name": "Register User",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "const json = pm.response.json();",
+                  "if (json.token) pm.collectionVariables.set('userToken', json.token);"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"nombre\": \"Usuario\",\n  \"apellido\": \"Test\",\n  \"email\": \"user@test.com\",\n  \"password\": \"123456\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/auth/register",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "auth", "register"]
+            }
+          }
+        },
+        {
+          "name": "Login User",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "const json = pm.response.json();",
+                  "if (json.token) pm.collectionVariables.set('userToken', json.token);"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"user@test.com\",\n  \"password\": \"123456\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/auth/login",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "auth", "login"]
+            }
+          }
+        },
+        {
+          "name": "Crear Genero",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "const json = pm.response.json();",
+                  "if (json.id) pm.collectionVariables.set('generoId', json.id);"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" },
+              { "key": "Authorization", "value": "Bearer {{adminToken}}" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"nombre\": \"Hombre\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/catalogo/generos",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "catalogo", "generos"]
+            }
+          }
+        },
+        {
+          "name": "Crear Talle",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "const json = pm.response.json();",
+                  "if (json.id) pm.collectionVariables.set('talleId', json.id);"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" },
+              { "key": "Authorization", "value": "Bearer {{adminToken}}" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"nombre\": \"M\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/catalogo/talles",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "catalogo", "talles"]
+            }
+          }
+        },
+        {
+          "name": "Crear Tipo Camiseta",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "const json = pm.response.json();",
+                  "if (json.id) pm.collectionVariables.set('tipoCamisetaId', json.id);"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" },
+              { "key": "Authorization", "value": "Bearer {{adminToken}}" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"nombre\": \"Titular\",\n  \"titular\": true,\n  \"alternativa\": false\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/catalogo/tipos-camiseta",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "catalogo", "tipos-camiseta"]
+            }
+          }
+        },
+        {
+          "name": "Crear Pais",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "const json = pm.response.json();",
+                  "if (json.id) pm.collectionVariables.set('paisId', json.id);"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" },
+              { "key": "Authorization", "value": "Bearer {{adminToken}}" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"nombre\": \"Argentina\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/catalogo/paises",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "catalogo", "paises"]
+            }
+          }
+        },
+        {
+          "name": "Crear Camiseta",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "const json = pm.response.json();",
+                  "if (json.id) pm.collectionVariables.set('camisetaId', json.id);"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" },
+              { "key": "Authorization", "value": "Bearer {{adminToken}}" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"nombre\": \"Argentina Titular 2026\",\n  \"descripcion\": \"Camiseta titular Mundial 2026\",\n  \"precio\": 100.00,\n  \"imagen\": \"arg-titular.jpg\",\n  \"tipoCamisetaId\": {{tipoCamisetaId}},\n  \"generoId\": {{generoId}},\n  \"paisId\": {{paisId}}\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/camisetas",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "camisetas"]
+            }
+          }
+        },
+        {
+          "name": "Crear Variante",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "const json = pm.response.json();",
+                  "if (json.id) pm.collectionVariables.set('varianteId', json.id);"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" },
+              { "key": "Authorization", "value": "Bearer {{adminToken}}" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"talleId\": {{talleId}},\n  \"stock\": 10,\n  \"sku\": \"ARG-TIT-M\",\n  \"color\": \"Celeste\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/camisetas/{{camisetaId}}/variantes",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "camisetas", "{{camisetaId}}", "variantes"]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Carrito",
+      "item": [
+        {
+          "name": "GET Carrito",
+          "request": {
+            "method": "GET",
+            "header": [{ "key": "Authorization", "value": "Bearer {{userToken}}" }],
+            "url": {
+              "raw": "{{baseUrl}}/api/carrito",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "carrito"]
+            }
+          }
+        },
+        {
+          "name": "POST Item al Carrito",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "const json = pm.response.json();",
+                  "if (json.items && json.items.length) {",
+                  "  pm.collectionVariables.set('itemId', json.items[json.items.length - 1].id);",
+                  "}"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" },
+              { "key": "Authorization", "value": "Bearer {{userToken}}" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"varianteId\": {{varianteId}},\n  \"cantidad\": 2\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/carrito/items",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "carrito", "items"]
+            }
+          }
+        },
+        {
+          "name": "PATCH Cantidad Item",
+          "request": {
+            "method": "PATCH",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" },
+              { "key": "Authorization", "value": "Bearer {{userToken}}" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"cantidad\": 3\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/carrito/items/{{itemId}}",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "carrito", "items", "{{itemId}}"]
+            }
+          }
+        },
+        {
+          "name": "DELETE Item",
+          "request": {
+            "method": "DELETE",
+            "header": [{ "key": "Authorization", "value": "Bearer {{userToken}}" }],
+            "url": {
+              "raw": "{{baseUrl}}/api/carrito/items/{{itemId}}",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "carrito", "items", "{{itemId}}"]
+            }
+          }
+        },
+        {
+          "name": "DELETE Vaciar Carrito",
+          "request": {
+            "method": "DELETE",
+            "header": [{ "key": "Authorization", "value": "Bearer {{userToken}}" }],
+            "url": {
+              "raw": "{{baseUrl}}/api/carrito",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "carrito"]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Checkout",
+      "item": [
+        {
+          "name": "POST Checkout",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "const json = pm.response.json();",
+                  "if (json.id) pm.collectionVariables.set('pedidoId', json.id);"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Authorization", "value": "Bearer {{userToken}}" }],
+            "url": {
+              "raw": "{{baseUrl}}/api/carrito/checkout",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "carrito", "checkout"]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Pedidos",
+      "item": [
+        {
+          "name": "GET Mis Pedidos",
+          "request": {
+            "method": "GET",
+            "header": [{ "key": "Authorization", "value": "Bearer {{userToken}}" }],
+            "url": {
+              "raw": "{{baseUrl}}/api/pedidos",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "pedidos"]
+            }
+          }
+        },
+        {
+          "name": "GET Pedido por Id",
+          "request": {
+            "method": "GET",
+            "header": [{ "key": "Authorization", "value": "Bearer {{userToken}}" }],
+            "url": {
+              "raw": "{{baseUrl}}/api/pedidos/{{pedidoId}}",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "pedidos", "{{pedidoId}}"]
+            }
+          }
+        }
+      ]
+    }
+  ]
+}
