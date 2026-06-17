@@ -7,6 +7,7 @@ import com.uade.tpo.marketplace.dto.UsuarioResponse;
 import com.uade.tpo.marketplace.dto.UsuarioUpdateRequest;
 import com.uade.tpo.marketplace.security.UsuarioPrincipal;
 import com.uade.tpo.marketplace.service.UsuarioService;
+import io.swagger.v3.oas.annotations.Parameter;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -34,26 +35,26 @@ public class UsuarioController {
     }
 
     @GetMapping("/me")
-    public UsuarioResponse me(@AuthenticationPrincipal UsuarioPrincipal usuarioPrincipal) {
+    public UsuarioResponse me(@Parameter(hidden = true) @AuthenticationPrincipal UsuarioPrincipal usuarioPrincipal) {
         return usuarioService.getMe(usuarioPrincipal.getId());
     }
 
     @PutMapping("/me")
-    public UsuarioResponse updateMe(@AuthenticationPrincipal UsuarioPrincipal usuarioPrincipal,
+    public UsuarioResponse updateMe(@Parameter(hidden = true) @AuthenticationPrincipal UsuarioPrincipal usuarioPrincipal,
                                    @Valid @RequestBody UsuarioUpdateRequest request) {
         return usuarioService.updateMe(usuarioPrincipal.getId(), request);
     }
 
     @PatchMapping("/me/password")
     @ResponseStatus(HttpStatus.NO_CONTENT)
-    public void changePassword(@AuthenticationPrincipal UsuarioPrincipal usuarioPrincipal,
+    public void changePassword(@Parameter(hidden = true) @AuthenticationPrincipal UsuarioPrincipal usuarioPrincipal,
                                @Valid @RequestBody UsuarioChangePasswordRequest request) {
         usuarioService.changePassword(usuarioPrincipal.getId(), request);
     }
 
     @DeleteMapping("/me")
     @ResponseStatus(HttpStatus.NO_CONTENT)
-    public void deactivateMe(@AuthenticationPrincipal UsuarioPrincipal usuarioPrincipal) {
+    public void deactivateMe(@Parameter(hidden = true) @AuthenticationPrincipal UsuarioPrincipal usuarioPrincipal) {
         usuarioService.deactivateMe(usuarioPrincipal.getId());
     }
 

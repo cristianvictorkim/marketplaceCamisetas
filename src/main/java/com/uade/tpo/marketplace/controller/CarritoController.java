@@ -5,6 +5,7 @@ import com.uade.tpo.marketplace.dto.CarritoItemRequest;
 import com.uade.tpo.marketplace.dto.CarritoResponse;
 import com.uade.tpo.marketplace.security.UsuarioPrincipal;
 import com.uade.tpo.marketplace.service.CarritoService;
+import io.swagger.v3.oas.annotations.Parameter;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -30,19 +31,19 @@ public class CarritoController {
     }
 
     @GetMapping
-    public CarritoResponse getCarrito(@AuthenticationPrincipal UsuarioPrincipal usuarioPrincipal) {
+    public CarritoResponse getCarrito(@Parameter(hidden = true) @AuthenticationPrincipal UsuarioPrincipal usuarioPrincipal) {
         return carritoService.getCarrito(usuarioPrincipal.getId());
     }
 
     @PostMapping("/items")
     @ResponseStatus(HttpStatus.CREATED)
-    public CarritoResponse addItem(@AuthenticationPrincipal UsuarioPrincipal usuarioPrincipal,
+    public CarritoResponse addItem(@Parameter(hidden = true) @AuthenticationPrincipal UsuarioPrincipal usuarioPrincipal,
                                    @Valid @RequestBody CarritoItemRequest request) {
         return carritoService.addItem(usuarioPrincipal.getId(), request);
     }
 
     @PatchMapping("/items/{id}")
-    public CarritoResponse updateItem(@AuthenticationPrincipal UsuarioPrincipal usuarioPrincipal,
+    public CarritoResponse updateItem(@Parameter(hidden = true) @AuthenticationPrincipal UsuarioPrincipal usuarioPrincipal,
                                       @PathVariable Long id,
                                       @Valid @RequestBody CarritoItemCantidadRequest request) {
         return carritoService.updateItem(usuarioPrincipal.getId(), id, request);
@@ -50,13 +51,13 @@ public class CarritoController {
 
     @DeleteMapping("/items/{id}")
     @ResponseStatus(HttpStatus.NO_CONTENT)
-    public void deleteItem(@AuthenticationPrincipal UsuarioPrincipal usuarioPrincipal, @PathVariable Long id) {
+    public void deleteItem(@Parameter(hidden = true) @AuthenticationPrincipal UsuarioPrincipal usuarioPrincipal, @PathVariable Long id) {
         carritoService.deleteItem(usuarioPrincipal.getId(), id);
     }
 
     @DeleteMapping
     @ResponseStatus(HttpStatus.NO_CONTENT)
-    public void clear(@AuthenticationPrincipal UsuarioPrincipal usuarioPrincipal) {
+    public void clear(@Parameter(hidden = true) @AuthenticationPrincipal UsuarioPrincipal usuarioPrincipal) {
         carritoService.clear(usuarioPrincipal.getId());
     }
 }

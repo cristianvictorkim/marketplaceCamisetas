@@ -4,6 +4,7 @@ import com.uade.tpo.marketplace.dto.PedidoEstadoUpdateRequest;
 import com.uade.tpo.marketplace.dto.PedidoResponse;
 import com.uade.tpo.marketplace.security.UsuarioPrincipal;
 import com.uade.tpo.marketplace.service.PedidoService;
+import io.swagger.v3.oas.annotations.Parameter;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -30,22 +31,22 @@ public class PedidoController {
 
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
-    public PedidoResponse create(@AuthenticationPrincipal UsuarioPrincipal usuarioPrincipal) {
+    public PedidoResponse create(@Parameter(hidden = true) @AuthenticationPrincipal UsuarioPrincipal usuarioPrincipal) {
         return pedidoService.createFromCarrito(usuarioPrincipal.getId());
     }
 
     @GetMapping
-    public List<PedidoResponse> list(@AuthenticationPrincipal UsuarioPrincipal usuarioPrincipal) {
+    public List<PedidoResponse> list(@Parameter(hidden = true) @AuthenticationPrincipal UsuarioPrincipal usuarioPrincipal) {
         return pedidoService.list(usuarioPrincipal.getId(), isAdmin(usuarioPrincipal));
     }
 
     @GetMapping("/{id}")
-    public PedidoResponse getById(@AuthenticationPrincipal UsuarioPrincipal usuarioPrincipal, @PathVariable Long id) {
+    public PedidoResponse getById(@Parameter(hidden = true) @AuthenticationPrincipal UsuarioPrincipal usuarioPrincipal, @PathVariable Long id) {
         return pedidoService.getById(id, usuarioPrincipal.getId(), isAdmin(usuarioPrincipal));
     }
 
     @PatchMapping("/{id}/cancelar")
-    public PedidoResponse cancelar(@AuthenticationPrincipal UsuarioPrincipal usuarioPrincipal, @PathVariable Long id) {
+    public PedidoResponse cancelar(@Parameter(hidden = true) @AuthenticationPrincipal UsuarioPrincipal usuarioPrincipal, @PathVariable Long id) {
         return pedidoService.cancel(id, usuarioPrincipal.getId(), isAdmin(usuarioPrincipal));
     }
 
