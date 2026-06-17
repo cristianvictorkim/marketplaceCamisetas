@@ -7,8 +7,11 @@ import org.springframework.data.repository.query.Param;
 
 import java.math.BigDecimal;
 import java.util.List;
+import java.util.Optional;
 
 public interface CamisetaRepository extends JpaRepository<Camiseta, Long> {
+
+    Optional<Camiseta> findFirstByNombre(String nombre);
 
     @Query("SELECT c FROM Camiseta c " +
             "WHERE c.activo = true " +
