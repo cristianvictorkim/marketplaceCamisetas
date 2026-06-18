@@ -135,6 +135,14 @@ public class CamisetaService {
     }
 
     @Transactional(readOnly = true)
+    public List<CamisetaTalleResponse> getAllVariantes() {
+        return camisetaTalleRepository.findAllWithRelations()
+                .stream()
+                .map(this::toVarianteResponse)
+                .collect(Collectors.toList());
+    }
+
+    @Transactional(readOnly = true)
     public CamisetaTalleResponse getVarianteById(Long id) {
         return toVarianteResponse(findVariante(id));
     }
@@ -168,7 +176,7 @@ public class CamisetaService {
 
     public DescuentoResponse createDescuento(Long camisetaId, DescuentoRequest request) {
         Camiseta camiseta = findCamiseta(camisetaId);
-        if (camiseta.getDescuento() != null) {
+        if (descuentoRepository.findByCamisetaId(camisetaId).isPresent()) {
             throw new BusinessException("Camiseta already has a descuento");
         }
         Descuento descuento = buildDescuento(camiseta, request);
@@ -176,23 +184,15 @@ public class CamisetaService {
     }
 
     public DescuentoResponse updateDescuento(Long camisetaId, DescuentoRequest request) {
-        Camiseta camiseta = findCamiseta(camisetaId);
-        Descuento descuento = camiseta.getDescuento();
-        if (descuento == null) {
-            throw new ResourceNotFoundException("Descuento not found for camiseta with id " + camisetaId);
-        }
+        findCamiseta(camisetaId);
+        Descuento descuento = findDescuentoByCamiseta(camisetaId);
         applyDescuento(descuento, request);
         return toDescuentoResponse(descuentoRepository.save(descuento));
     }
 
     public void deleteDescuento(Long camisetaId) {
-        Camiseta camiseta = findCamiseta(camisetaId);
-        Descuento descuento = camiseta.getDescuento();
-        if (descuento == null) {
-            throw new ResourceNotFoundException("Descuento not found for camiseta with id " + camisetaId);
-        }
-        camiseta.setDescuento(null);
-        descuentoRepository.delete(descuento);
+        findCamiseta(camisetaId);
+        descuentoRepository.delete(findDescuentoByCamiseta(camisetaId));
     }
 
     private Camiseta findCamiseta(Long id) {
@@ -223,6 +223,12 @@ public class CamisetaService {
     private CamisetaTalle findVariante(Long id) {
         return camisetaTalleRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Variante not found with id " + id));
+    }
+
+    private Descuento findDescuentoByCamiseta(Long camisetaId) {
+        return descuentoRepository.findByCamisetaId(camisetaId)
+                .orElseThrow(() ->
+                        new ResourceNotFoundException("Descuento not found for camiseta with id " + camisetaId));
     }
 
     private void validatePriceRange(BigDecimal minPrecio, BigDecimal maxPrecio) {

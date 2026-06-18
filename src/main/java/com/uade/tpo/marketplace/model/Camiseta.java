@@ -10,7 +10,6 @@ import javax.persistence.Id;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
 import javax.persistence.OneToMany;
-import javax.persistence.OneToOne;
 import javax.persistence.Table;
 import java.math.BigDecimal;
 import java.util.ArrayList;
@@ -47,9 +46,6 @@ public class Camiseta {
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "pais_id", nullable = false)
     private Pais pais;
-
-    @OneToOne(mappedBy = "camiseta", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
-    private Descuento descuento;
 
     @OneToMany(mappedBy = "camiseta", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<CamisetaTalle> variantes = new ArrayList<CamisetaTalle>();
@@ -134,14 +130,6 @@ public class Camiseta {
 
     public void setPais(Pais pais) {
         this.pais = pais;
-    }
-
-    public Descuento getDescuento() {
-        return descuento;
-    }
-
-    public void setDescuento(Descuento descuento) {
-        this.descuento = descuento;
     }
 
     public List<CamisetaTalle> getVariantes() {

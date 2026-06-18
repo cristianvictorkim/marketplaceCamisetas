@@ -12,7 +12,9 @@ import com.uade.tpo.marketplace.repository.GeneroRepository;
 import com.uade.tpo.marketplace.repository.PaisRepository;
 import com.uade.tpo.marketplace.repository.TalleRepository;
 import com.uade.tpo.marketplace.repository.TipoCamisetaRepository;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.boot.CommandLineRunner;
+import org.springframework.core.annotation.Order;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -21,6 +23,8 @@ import java.util.Arrays;
 import java.util.List;
 
 @Component
+@Order(100)
+@ConditionalOnProperty(name = "app.catalog-seeder.enabled", havingValue = "true", matchIfMissing = true)
 public class WorldCupCatalogSeeder implements CommandLineRunner {
 
     private static final List<String> SIZES = Arrays.asList("S", "M", "L", "XL");

@@ -78,6 +78,11 @@ public class CamisetaController {
         camisetaService.delete(id);
     }
 
+    @GetMapping("/variantes")
+    public List<CamisetaTalleResponse> getAllVariantes() {
+        return camisetaService.getAllVariantes();
+    }
+
     @GetMapping("/{id}/variantes")
     public List<CamisetaTalleResponse> getVariantes(@PathVariable Long id) {
         return camisetaService.getVariantesByCamiseta(id);
