@@ -64,7 +64,7 @@ public class PedidoService {
         BigDecimal total = BigDecimal.ZERO;
 
         for (ItemCarrito item : carrito.getItems()) {
-            CamisetaTalle variante = camisetaTalleRepository.findById(item.getVariante().getId())
+            CamisetaTalle variante = camisetaTalleRepository.findByIdForUpdate(item.getVariante().getId())
                     .orElseThrow(() -> new ResourceNotFoundException("Variante not found with id " + item.getVariante().getId()));
 
             if (!variante.getCamiseta().isActivo()) {
@@ -145,7 +145,7 @@ public class PedidoService {
             throw new BusinessException("Pedido cannot be cancelled in its current state");
         }
 
-        pedido.setEstado(ESTADO_CANCELADO);
+        cancelarYReponerStock(pedido);
         return toResponse(pedidoRepository.save(pedido));
     }
 
@@ -157,8 +157,30 @@ public class PedidoService {
         if (estado.isEmpty()) {
             throw new BusinessException("Estado is required");
         }
-        pedido.setEstado(estado);
+
+        if (ESTADO_CANCELADO.equalsIgnoreCase(pedido.getEstado())) {
+            if (ESTADO_CANCELADO.equals(estado)) {
+                return toResponse(pedido);
+            }
+            throw new BusinessException("Pedido cancelado cannot change state");
+        }
+
+        if (ESTADO_CANCELADO.equals(estado)
+                && !ESTADO_CANCELADO.equalsIgnoreCase(pedido.getEstado())) {
+            cancelarYReponerStock(pedido);
+        } else {
+            pedido.setEstado(estado);
+        }
         return toResponse(pedidoRepository.save(pedido));
+    }
+
+    private void cancelarYReponerStock(Pedido pedido) {
+        for (DetallePedido detalle : pedido.getDetalles()) {
+            CamisetaTalle variante = detalle.getVariante();
+            variante.setStock(variante.getStock() + detalle.getCantidad());
+            camisetaTalleRepository.save(variante);
+        }
+        pedido.setEstado(ESTADO_CANCELADO);
     }
 
     private PedidoResponse toResponse(Pedido pedido) {

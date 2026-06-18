@@ -8,4 +8,6 @@ import java.util.Optional;
 public interface GeneroRepository extends JpaRepository<Genero, Long> {
 
     Optional<Genero> findFirstByNombre(String nombre);
+
+    Optional<Genero> findFirstByNombreIgnoreCase(String nombre);
 }

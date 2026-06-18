@@ -13,6 +13,8 @@ public interface CamisetaRepository extends JpaRepository<Camiseta, Long> {
 
     Optional<Camiseta> findFirstByNombre(String nombre);
 
+    List<Camiseta> findByGeneroId(Long generoId);
+
     @Query("SELECT c FROM Camiseta c " +
             "JOIN FETCH c.pais " +
             "JOIN FETCH c.tipoCamiseta " +

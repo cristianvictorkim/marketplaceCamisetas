@@ -60,6 +60,29 @@ Servicios disponibles:
 
 El script carga automáticamente las variables definidas en `.env`.
 
+## Levantar la aplicación completa
+
+1. En una terminal, desde `marketplace`:
+
+```powershell
+.\scripts\start-backend.ps1
+```
+
+2. En otra terminal, desde `EccomerceCamisetas-Front\client`:
+
+```powershell
+npm install
+npm run dev
+```
+
+3. Abrir http://localhost:5173. El backend debe continuar ejecutándose en
+   http://localhost:8080.
+
+Para probar el panel administrativo:
+
+- Email: `admin@mail.com`
+- Contraseña: `Password123!`
+
 ## Estado de la migración
 
 La base H2 original ya fue migrada a Neon. Se conservaron los IDs, relaciones,
