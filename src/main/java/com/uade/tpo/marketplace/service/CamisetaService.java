@@ -27,6 +27,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigDecimal;
+import java.util.Comparator;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -64,10 +65,21 @@ public class CamisetaService {
                                          Long generoId,
                                          BigDecimal minPrecio,
                                          BigDecimal maxPrecio,
-                                         String search) {
+                                         String search,
+                                         String talle,
+                                         String sort) {
         validatePriceRange(minPrecio, maxPrecio);
-        return camisetaRepository.search(paisId, tipoCamisetaId, generoId, minPrecio, maxPrecio, normalizeSearch(search))
+        return camisetaRepository.search(
+                        paisId,
+                        tipoCamisetaId,
+                        generoId,
+                        minPrecio,
+                        maxPrecio,
+                        normalizeSearch(search),
+                        normalizeSearch(talle)
+                )
                 .stream()
+                .sorted(resolveSort(sort))
                 .map(this::toResponse)
                 .collect(Collectors.toList());
     }
@@ -224,6 +236,25 @@ public class CamisetaService {
             return null;
         }
         return search.trim();
+    }
+
+    private Comparator<Camiseta> resolveSort(String sort) {
+        if (sort == null || sort.trim().isEmpty() || "default".equalsIgnoreCase(sort)) {
+            return Comparator.comparing(Camiseta::getId);
+        }
+
+        switch (sort.trim().toLowerCase()) {
+            case "price-asc":
+                return Comparator.comparing(Camiseta::getPrecio);
+            case "price-desc":
+                return Comparator.comparing(Camiseta::getPrecio).reversed();
+            case "name-asc":
+                return Comparator.comparing(Camiseta::getNombre, String.CASE_INSENSITIVE_ORDER);
+            case "name-desc":
+                return Comparator.comparing(Camiseta::getNombre, String.CASE_INSENSITIVE_ORDER).reversed();
+            default:
+                throw new BusinessException("Unsupported sort value: " + sort);
+        }
     }
 
     private Descuento buildDescuento(Camiseta camiseta, DescuentoRequest request) {

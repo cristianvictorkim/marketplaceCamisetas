@@ -2,8 +2,8 @@ package com.uade.tpo.marketplace.config;
 
 final class WorldCupImageCatalog {
 
-    private static final String DEFAULT_HOME_IMAGE = "https://cdn.shopify.com/s/files/1/0591/0478/8538/files/image_53104866-d11b-446b-842f-9e37e19d1c38.png?v=1774372574";
-    private static final String DEFAULT_AWAY_IMAGE = "https://cdn.shopify.com/s/files/1/0591/0478/8538/files/image_b6a5a8ac-8a79-460f-904c-9fc586a854f0.jpg?v=1775563942";
+    private static final String ARGENTINA_HOME_IMAGE = "https://cdn.shopify.com/s/files/1/0591/0478/8538/files/image_53104866-d11b-446b-842f-9e37e19d1c38.png?v=1774372574";
+    private static final String ARGENTINA_AWAY_IMAGE = "https://cdn.shopify.com/s/files/1/0591/0478/8538/files/image_b6a5a8ac-8a79-460f-904c-9fc586a854f0.jpg?v=1775563942";
 
     private WorldCupImageCatalog() {
     }
@@ -69,9 +69,9 @@ final class WorldCupImageCatalog {
             case "Haiti|Alternativa":
                 return "https://cdn.shopify.com/s/files/1/0591/0478/8538/files/FIFAMZ0442-1.png?v=1781686439";
             case "Argentina|Titular":
-                return DEFAULT_HOME_IMAGE;
+                return ARGENTINA_HOME_IMAGE;
             case "Argentina|Alternativa":
-                return DEFAULT_AWAY_IMAGE;
+                return ARGENTINA_AWAY_IMAGE;
             case "Brasil|Titular":
                 return "https://static.nike.com/a/images/t_web_pw_592_v2/f_auto/u_9ddf04c7-2a9a-4d76-add1-d15af8f0263d,c_scale,fl_relative,w_1.0,h_1.0,fl_layer_apply/244bbcfc-6266-43d5-8322-3c78f63d9528/CBF+Y+NK+DFADV+JSY+SS+MATCH+HM.png";
             case "Brasil|Alternativa":
@@ -145,7 +145,7 @@ final class WorldCupImageCatalog {
             case "Turquia|Alternativa":
                 return "https://static.nike.com/a/images/t_web_pw_592_v2/f_auto/u_9ddf04c7-2a9a-4d76-add1-d15af8f0263d,c_scale,fl_relative,w_1.0,h_1.0,fl_layer_apply/61b3bb81-f088-4bb5-ac1a-241fbce89a8b/SP26+WC+TURKEY+SS+JSY+STAD+AW.png";
             default:
-                return "Alternativa".equals(version) ? DEFAULT_AWAY_IMAGE : DEFAULT_HOME_IMAGE;
+                return null;
         }
     }
 }

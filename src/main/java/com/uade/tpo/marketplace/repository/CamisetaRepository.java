@@ -20,14 +20,19 @@ public interface CamisetaRepository extends JpaRepository<Camiseta, Long> {
             "AND (:generoId IS NULL OR c.genero.id = :generoId) " +
             "AND (:minPrecio IS NULL OR c.precio >= :minPrecio) " +
             "AND (:maxPrecio IS NULL OR c.precio <= :maxPrecio) " +
+            "AND (:talle IS NULL OR EXISTS (" +
+            "SELECT ct.id FROM CamisetaTalle ct " +
+            "WHERE ct.camiseta = c AND LOWER(ct.talle.nombre) = LOWER(:talle) AND ct.stock > 0)) " +
             "AND (:search IS NULL OR LOWER(c.nombre) LIKE LOWER(CONCAT('%', :search, '%')) " +
-            "OR LOWER(c.descripcion) LIKE LOWER(CONCAT('%', :search, '%')))")
+            "OR LOWER(c.descripcion) LIKE LOWER(CONCAT('%', :search, '%')) " +
+            "OR LOWER(c.pais.nombre) LIKE LOWER(CONCAT('%', :search, '%')))")
     List<Camiseta> search(
             @Param("paisId") Long paisId,
             @Param("tipoCamisetaId") Long tipoCamisetaId,
             @Param("generoId") Long generoId,
             @Param("minPrecio") BigDecimal minPrecio,
             @Param("maxPrecio") BigDecimal maxPrecio,
-            @Param("search") String search
+            @Param("search") String search,
+            @Param("talle") String talle
     );
 }

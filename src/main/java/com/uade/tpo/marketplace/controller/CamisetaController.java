@@ -41,8 +41,19 @@ public class CamisetaController {
                                          @RequestParam(required = false) Long generoId,
                                          @RequestParam(required = false) BigDecimal minPrecio,
                                          @RequestParam(required = false) BigDecimal maxPrecio,
-                                         @RequestParam(required = false) String search) {
-        return camisetaService.getAll(paisId, tipoCamisetaId, generoId, minPrecio, maxPrecio, search);
+                                         @RequestParam(required = false) String search,
+                                         @RequestParam(required = false) String talle,
+                                         @RequestParam(required = false) String sort) {
+        return camisetaService.getAll(
+                paisId,
+                tipoCamisetaId,
+                generoId,
+                minPrecio,
+                maxPrecio,
+                search,
+                talle,
+                sort
+        );
     }
 
     @GetMapping("/{id}")

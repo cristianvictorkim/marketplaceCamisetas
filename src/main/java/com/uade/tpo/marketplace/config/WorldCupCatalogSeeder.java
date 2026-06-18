@@ -57,6 +57,8 @@ public class WorldCupCatalogSeeder implements CommandLineRunner {
             ensureTalle(size);
         }
 
+        deactivateInvalidCatalogEntries();
+
         for (Team team : teams()) {
             Pais pais = ensurePais(team.name, team.group);
             ensureCamiseta(team, pais, unisex, titular, "Titular", new BigDecimal("119.99"), team.homePrimary, team.homeSecondary, team.homeAccent);
@@ -97,6 +99,15 @@ public class WorldCupCatalogSeeder implements CommandLineRunner {
                                 String accent) {
         String name = "Camiseta " + team.name + " " + version + " 2026";
         String image = WorldCupImageCatalog.imageFor(team.name, version);
+
+        if (image == null) {
+            camisetaRepository.findFirstByNombre(name).ifPresent(camiseta -> {
+                camiseta.setActivo(false);
+                camisetaRepository.save(camiseta);
+            });
+            return;
+        }
+
         String description = "Camiseta " + version.toLowerCase() + " de " + team.name
                 + " para el Mundial 2026. Diseno premium inspirado en los colores nacionales, con tela liviana y respirable.";
 
@@ -115,6 +126,34 @@ public class WorldCupCatalogSeeder implements CommandLineRunner {
         Camiseta saved = camisetaRepository.save(camiseta);
 
         ensureVariants(saved, team.slug, version, primary);
+    }
+
+    private void deactivateInvalidCatalogEntries() {
+        for (Camiseta camiseta : camisetaRepository.findAll()) {
+            String image = camiseta.getImagen();
+            boolean validWebImage = image != null
+                    && (image.startsWith("https://") || image.startsWith("http://"));
+
+            if (!validWebImage) {
+                camiseta.setActivo(false);
+                camisetaRepository.save(camiseta);
+                continue;
+            }
+
+            if (!camiseta.getNombre().endsWith(" 2026")) {
+                continue;
+            }
+
+            String expectedImage = WorldCupImageCatalog.imageFor(
+                    camiseta.getPais().getNombre(),
+                    camiseta.getTipoCamiseta().getNombre()
+            );
+
+            if (expectedImage == null || !expectedImage.equals(image)) {
+                camiseta.setActivo(false);
+                camisetaRepository.save(camiseta);
+            }
+        }
     }
 
     private void ensureVariants(Camiseta camiseta, String teamSlug, String version, String color) {
