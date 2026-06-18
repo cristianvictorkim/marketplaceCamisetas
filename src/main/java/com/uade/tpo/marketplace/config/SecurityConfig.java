@@ -89,6 +89,7 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
                 .antMatchers(HttpMethod.PATCH, "/api/pedidos/*/estado").hasRole("ADMIN")
                 // Compras: Restricciones para que los ADMINs no puedan usar el carrito ni crear pedidos
                 .antMatchers("/api/carrito/**").hasRole("USER")
+                .antMatchers("/api/favoritos/**").hasRole("USER")
                 .antMatchers(HttpMethod.POST, "/api/pedidos").hasRole("USER")
                 .antMatchers(HttpMethod.PATCH, "/api/pedidos/*/cancelar").hasRole("USER")
                 .anyRequest().authenticated();

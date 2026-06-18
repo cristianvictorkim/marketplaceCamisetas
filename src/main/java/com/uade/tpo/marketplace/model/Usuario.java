@@ -1,6 +1,7 @@
 package com.uade.tpo.marketplace.model;
 
 import javax.persistence.Column;
+import javax.persistence.CascadeType;
 import javax.persistence.Entity;
 import javax.persistence.FetchType;
 import javax.persistence.GeneratedValue;
@@ -8,8 +9,11 @@ import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
+import javax.persistence.OneToMany;
 import javax.persistence.OneToOne;
 import javax.persistence.Table;
+import java.util.ArrayList;
+import java.util.List;
 
 @Entity
 @Table(name = "usuarios")
@@ -41,6 +45,9 @@ public class Usuario {
 
     @OneToOne(mappedBy = "usuario", fetch = FetchType.LAZY)
     private Carrito carrito;
+
+    @OneToMany(mappedBy = "usuario", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<Favorito> favoritos = new ArrayList<Favorito>();
 
     public Usuario() {
     }
@@ -119,5 +126,9 @@ public class Usuario {
 
     public void setCarrito(Carrito carrito) {
         this.carrito = carrito;
+    }
+
+    public List<Favorito> getFavoritos() {
+        return favoritos;
     }
 }

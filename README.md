@@ -170,6 +170,18 @@ administrador.
 - `DELETE /api/carrito/items/{id}`: elimina un producto.
 - `DELETE /api/carrito`: vacía el carrito.
 
+### Favoritos
+
+Requieren un usuario autenticado con rol `USER`.
+
+- `GET /api/favoritos`: lista las camisetas favoritas activas del usuario.
+- `POST /api/favoritos/{camisetaId}`: agrega una camiseta a favoritos.
+- `DELETE /api/favoritos/{camisetaId}`: elimina una camiseta de favoritos.
+- `GET /api/favoritos/{camisetaId}/existe`: indica si la camiseta es favorita.
+
+Agregar o eliminar es idempotente: repetir la misma operación no genera
+duplicados ni errores.
+
 ### Pedidos
 
 - `POST /api/pedidos`: genera un pedido a partir del carrito.
