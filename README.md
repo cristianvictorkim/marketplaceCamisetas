@@ -80,8 +80,8 @@ npm run dev
 
 Para probar el panel administrativo:
 
-- Email: `admin@mail.com`
-- Contraseña: `Password123!`
+- Email: `admin@uade.edu.ar`
+- Contraseña: `123456`
 
 ## Estado de la migración
 
@@ -138,8 +138,8 @@ Consola H2: http://localhost:8080/h2-console
 
 ## Credenciales de administrador para pruebas
 
-- Usuario: `admin@mail.com`
-- Contraseña: `Password123!`
+- Usuario: `admin@uade.edu.ar`
+- Contraseña: `123456`
 
 ## Endpoints
 
