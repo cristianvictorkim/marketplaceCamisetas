@@ -1,109 +1,146 @@
 # Marketplace Camisetas API
 
-API REST para el marketplace de camisetas del Mundial 2026, desarrollada con
-Spring Boot, Spring Security, JPA y PostgreSQL.
+API REST del e-commerce de camisetas del Mundial 2026, desarrollada con Spring
+Boot, Spring Security, JPA, JWT y PostgreSQL.
 
 ## Requisitos
 
-- Java 17
-- PowerShell
-- Acceso a la base compartida de Neon
-- Docker Desktop únicamente si se quiere usar PostgreSQL local
+- Java 8 o superior.
+- PowerShell.
+- Node.js 18 o superior y npm para ejecutar el frontend.
+- Acceso a Internet en la primera ejecución para descargar dependencias.
 
-El proyecto incluye su propia instalación de Maven mediante `mvnw.cmd`.
-
-## Base de datos compartida
-
-El entorno de trabajo del equipo utiliza PostgreSQL 16 alojado en Neon. Los
-usuarios, productos, carritos, stocks y pedidos se almacenan en esa misma base,
-por lo que no es necesario que la computadora de otro integrante permanezca
-encendida.
-
-### Configuración inicial
-
-La rama `conexion-bd` incluye el archivo `.env` con la conexión compartida de
-Neon. Al clonar el repositorio o cambiar a esta rama, el backend recibe
-automáticamente la misma configuración:
-
-```env
-DB_URL=jdbc:postgresql://HOST-POOLER-DE-NEON/neondb?sslmode=require&channelBinding=require
-DB_USERNAME=neondb_owner
-DB_PASSWORD=CONTRASENA_DE_NEON
-
-JWT_SECRET=SECRETO_COMPARTIDO_POR_EL_EQUIPO
-JWT_EXPIRATION_MS=86400000
-CATALOG_SEEDER_ENABLED=false
-MIGRATE_H2_TO_POSTGRES=false
-JPA_SHOW_SQL=false
-```
-
-No es necesario crear ni editar `.env` para usar la base compartida. La URL que
-entrega Neon comienza con `postgresql://`; Spring Boot la utiliza con el prefijo
-`jdbc:postgresql://`.
-
-Esta decisión expone las credenciales a toda persona con acceso al repositorio.
-Si la contraseña cambia, el archivo `.env` versionado debe actualizarse y todo
-el equipo debe descargar el nuevo commit.
-
-## Ejecutar el backend
-
-Desde la carpeta `marketplace`:
-
-```powershell
-.\scripts\start-backend.ps1
-```
-
-Servicios disponibles:
-
-- API: http://localhost:8080
-- Swagger: http://localhost:8080/swagger-ui/index.html
-
-El script carga automáticamente las variables definidas en `.env`.
+El backend incluye Maven Wrapper, por lo que no es necesario instalar Maven.
 
 ## Levantar la aplicación completa
 
-1. En una terminal, desde `marketplace`:
+1. Desde la carpeta `marketplace`, iniciar el backend:
 
 ```powershell
 .\scripts\start-backend.ps1
 ```
 
-2. En otra terminal, desde `EccomerceCamisetas-Front\client`:
+2. En otra terminal, desde `EccomerceCamisetas-Front\client`, iniciar el
+   frontend:
 
 ```powershell
 npm install
 npm run dev
 ```
 
-3. Abrir http://localhost:5173. El backend debe continuar ejecutándose en
-   http://localhost:8080.
+3. Abrir http://localhost:5173.
 
-Para probar el panel administrativo:
+Servicios disponibles:
+
+- API: http://localhost:8080
+- Swagger: http://localhost:8080/swagger-ui/index.html
+- Frontend: http://localhost:5173
+
+La primera ejecución puede demorar mientras Maven y npm descargan las
+dependencias.
+
+## Base de datos y archivo `.env`
+
+La entrega incluye `marketplace/.env` porque contiene la configuración
+necesaria para conectarse a la base PostgreSQL compartida de Neon. El script
+`start-backend.ps1` carga automáticamente sus variables.
+
+No es necesario editar ese archivo para ejecutar la entrega. Sus credenciales
+son de uso académico y no deben publicarse fuera del entorno de la materia.
+
+Variables utilizadas:
+
+```env
+DB_URL=jdbc:postgresql://HOST/neondb
+DB_USERNAME=USUARIO
+DB_PASSWORD=CONTRASEÑA
+JWT_SECRET=SECRETO
+JWT_EXPIRATION_MS=86400000
+CATALOG_SEEDER_ENABLED=false
+MIGRATE_H2_TO_POSTGRES=false
+JPA_SHOW_SQL=false
+```
+
+## Credenciales de administrador
 
 - Email: `admin@uade.edu.ar`
 - Contraseña: `123456`
 
-## Estado de la migración
+## Funcionalidades
 
-La base H2 original ya fue migrada a Neon. Se conservaron los IDs, relaciones,
-usuarios, productos, variantes, stocks, descuentos, carritos y pedidos.
+- Registro, login y autorización por roles mediante JWT.
+- Gestión de usuarios y perfil.
+- Catálogo público con búsqueda y filtros.
+- CRUD administrativo de camisetas, variantes, stock y descuentos.
+- Favoritos persistidos por usuario.
+- Carrito persistido y validado en backend.
+- Creación e historial de pedidos.
+- Descuento de stock durante el checkout.
+- Reposición de stock al cancelar.
+- Bloqueo de cambios de estado para pedidos cancelados.
+- Catálogos de países, géneros, talles y tipos de camiseta.
+- Documentación interactiva con Swagger.
 
-No se debe volver a ejecutar la migración sobre la base compartida existente.
-La opción siguiente se conserva únicamente para migrar una H2 hacia una base
-PostgreSQL nueva y vacía:
+## Endpoints principales
 
-```powershell
-.\scripts\start-backend.ps1 -MigrateH2
-```
+### Autenticación
 
-El proceso se detiene automáticamente si detecta registros en la base de
-destino, evitando sobrescribir información.
+- `POST /api/auth/register`
+- `POST /api/auth/login`
+- `POST /api/auth/bootstrap-admin`
+
+### Usuarios
+
+- `GET /api/usuarios/me`
+- `PUT /api/usuarios/me`
+- `PATCH /api/usuarios/me/password`
+- `DELETE /api/usuarios/me`
+- `/api/usuarios`: operaciones administrativas.
+
+### Camisetas y catálogos
+
+- `GET /api/camisetas`
+- `GET /api/camisetas/{id}`
+- `/api/camisetas/**`: gestión administrativa.
+- `/api/catalogo/generos`
+- `/api/catalogo/talles`
+- `/api/catalogo/tipos-camiseta`
+- `/api/catalogo/paises`
+
+### Carrito
+
+- `GET /api/carrito`
+- `POST /api/carrito/items`
+- `PATCH /api/carrito/items/{id}`
+- `DELETE /api/carrito/items/{id}`
+- `DELETE /api/carrito`
+
+### Favoritos
+
+- `GET /api/favoritos`
+- `POST /api/favoritos/{camisetaId}`
+- `DELETE /api/favoritos/{camisetaId}`
+- `GET /api/favoritos/{camisetaId}/existe`
+
+### Pedidos
+
+- `POST /api/pedidos`
+- `GET /api/pedidos`
+- `GET /api/pedidos/{id}`
+- `PATCH /api/pedidos/{id}/cancelar`
+- `PATCH /api/pedidos/{id}/estado`
 
 ## Alternativas locales
 
-### PostgreSQL con Docker
+### H2
 
-Para trabajar con una PostgreSQL local:
+```powershell
+.\scripts\start-backend.ps1 -Local
+```
+
+Consola: http://localhost:8080/h2-console
+
+### PostgreSQL con Docker
 
 ```powershell
 docker compose up -d
@@ -113,102 +150,14 @@ $env:DB_PASSWORD = "marketplace_dev"
 .\mvnw.cmd -s .mvn\settings.xml "-Dmaven.compiler.fork=true" spring-boot:run
 ```
 
-Configuración predeterminada:
-
-- Base: `marketplace`
-- Puerto: `5432`
-- Usuario: `marketplace`
-- Contraseña: `marketplace_dev`
-
-Para detener el contenedor:
+Para detenerlo:
 
 ```powershell
 docker compose down
 ```
 
-### H2
-
-H2 permanece disponible como respaldo local:
+## Pruebas
 
 ```powershell
-.\scripts\start-backend.ps1 -Local
+.\mvnw.cmd -s .mvn\settings.xml "-Dmaven.compiler.fork=true" test
 ```
-
-Consola H2: http://localhost:8080/h2-console
-
-## Credenciales de administrador para pruebas
-
-- Usuario: `admin@uade.edu.ar`
-- Contraseña: `123456`
-
-## Endpoints
-
-### Autenticación
-
-- `POST /api/auth/register`: registra un usuario cliente.
-- `POST /api/auth/login`: inicia sesión y devuelve el token JWT.
-- `POST /api/auth/bootstrap-admin`: crea el administrador inicial.
-
-### Usuarios
-
-- `GET /api/usuarios/me`: devuelve la cuenta autenticada.
-- `PUT /api/usuarios/me`: actualiza sus datos.
-- `PATCH /api/usuarios/me/password`: cambia su contraseña.
-- `DELETE /api/usuarios/me`: elimina su cuenta.
-- `GET /api/usuarios`: lista usuarios; requiere rol administrador.
-- `GET /api/usuarios/{id}`: devuelve un usuario; requiere administrador.
-- `POST /api/usuarios`: crea un usuario; requiere administrador.
-- `PUT /api/usuarios/{id}`: actualiza un usuario; requiere administrador.
-- `DELETE /api/usuarios/{id}`: elimina un usuario; requiere administrador.
-
-### Catálogo
-
-Las consultas son públicas. Las operaciones de escritura requieren rol
-administrador.
-
-- `/api/catalogo/generos`: gestión de géneros.
-- `/api/catalogo/talles`: gestión de talles.
-- `/api/catalogo/tipos-camiseta`: gestión de tipos de camiseta.
-- `/api/catalogo/paises`: gestión de selecciones y países.
-
-### Camisetas
-
-- `GET /api/camisetas`: lista las camisetas publicadas.
-- `GET /api/camisetas/{id}`: devuelve el detalle de una camiseta.
-- `POST /api/camisetas`: crea una camiseta; requiere administrador.
-- `PUT /api/camisetas/{id}`: actualiza una camiseta; requiere administrador.
-- `DELETE /api/camisetas/{id}`: elimina una camiseta; requiere administrador.
-- `GET /api/camisetas/{id}/variantes`: lista talles y stock.
-- `POST /api/camisetas/{id}/variantes`: crea una variante.
-- `PUT /api/camisetas/variantes/{id}`: actualiza una variante.
-- `DELETE /api/camisetas/variantes/{id}`: elimina una variante.
-- `PATCH /api/camisetas/variantes/{id}/stock`: modifica el stock.
-- `/api/camisetas/{id}/descuento`: gestión de descuentos.
-
-### Carrito
-
-- `GET /api/carrito`: devuelve el carrito actual.
-- `POST /api/carrito/items`: agrega un producto.
-- `PATCH /api/carrito/items/{id}`: modifica la cantidad.
-- `DELETE /api/carrito/items/{id}`: elimina un producto.
-- `DELETE /api/carrito`: vacía el carrito.
-
-### Favoritos
-
-Requieren un usuario autenticado con rol `USER`.
-
-- `GET /api/favoritos`: lista las camisetas favoritas activas del usuario.
-- `POST /api/favoritos/{camisetaId}`: agrega una camiseta a favoritos.
-- `DELETE /api/favoritos/{camisetaId}`: elimina una camiseta de favoritos.
-- `GET /api/favoritos/{camisetaId}/existe`: indica si la camiseta es favorita.
-
-Agregar o eliminar es idempotente: repetir la misma operación no genera
-duplicados ni errores.
-
-### Pedidos
-
-- `POST /api/pedidos`: genera un pedido a partir del carrito.
-- `GET /api/pedidos`: devuelve el historial de pedidos.
-- `GET /api/pedidos/{id}`: devuelve el detalle de un pedido.
-- `PATCH /api/pedidos/{id}/cancelar`: cancela un pedido.
-- `PATCH /api/pedidos/{id}/estado`: cambia su estado; requiere administrador.
