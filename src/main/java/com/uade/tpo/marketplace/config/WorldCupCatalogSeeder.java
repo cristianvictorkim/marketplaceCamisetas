@@ -65,8 +65,9 @@ public class WorldCupCatalogSeeder implements CommandLineRunner {
 
         for (Team team : teams()) {
             Pais pais = ensurePais(team.name, team.group);
-            ensureCamiseta(team, pais, unisex, titular, "Titular", new BigDecimal("119.99"), team.homePrimary, team.homeSecondary, team.homeAccent);
-            ensureCamiseta(team, pais, unisex, alternativa, "Alternativa", new BigDecimal("109.99"), team.awayPrimary, team.awaySecondary, team.awayAccent);
+            BigDecimal price = WorldCupPriceCatalog.priceFor(team.name);
+            ensureCamiseta(team, pais, unisex, titular, "Titular", price, team.homePrimary, team.homeSecondary, team.homeAccent);
+            ensureCamiseta(team, pais, unisex, alternativa, "Alternativa", price, team.awayPrimary, team.awaySecondary, team.awayAccent);
         }
     }
 
@@ -104,14 +105,6 @@ public class WorldCupCatalogSeeder implements CommandLineRunner {
         String name = "Camiseta " + team.name + " " + version + " 2026";
         String image = WorldCupImageCatalog.imageFor(team.name, version);
 
-        if (image == null) {
-            camisetaRepository.findFirstByNombre(name).ifPresent(camiseta -> {
-                camiseta.setActivo(false);
-                camisetaRepository.save(camiseta);
-            });
-            return;
-        }
-
         String description = "Camiseta " + version.toLowerCase() + " de " + team.name
                 + " para el Mundial 2026. Diseno premium inspirado en los colores nacionales, con tela liviana y respirable.";
 
@@ -129,16 +122,12 @@ public class WorldCupCatalogSeeder implements CommandLineRunner {
         camiseta.setActivo(true);
         Camiseta saved = camisetaRepository.save(camiseta);
 
-        ensureVariants(saved, team.slug, version, primary);
+        ensureVariants(saved, team.slug, version, primary, image == null);
     }
 
     private void deactivateInvalidCatalogEntries() {
         for (Camiseta camiseta : camisetaRepository.findAll()) {
-            String image = camiseta.getImagen();
-            boolean validWebImage = image != null
-                    && (image.startsWith("https://") || image.startsWith("http://"));
-
-            if (!validWebImage) {
+            if ("PRUEBA".equalsIgnoreCase(camiseta.getNombre().trim())) {
                 camiseta.setActivo(false);
                 camisetaRepository.save(camiseta);
                 continue;
@@ -153,37 +142,46 @@ public class WorldCupCatalogSeeder implements CommandLineRunner {
                     camiseta.getTipoCamiseta().getNombre()
             );
 
-            if (expectedImage == null || !expectedImage.equals(image)) {
+            if (expectedImage != null && !expectedImage.equals(camiseta.getImagen())) {
                 camiseta.setActivo(false);
                 camisetaRepository.save(camiseta);
             }
         }
     }
 
-    private void ensureVariants(Camiseta camiseta, String teamSlug, String version, String color) {
+    private void ensureVariants(Camiseta camiseta,
+                                String teamSlug,
+                                String version,
+                                String color,
+                                boolean forceOutOfStock) {
         List<CamisetaTalle> current = camisetaTalleRepository.findByCamisetaId(camiseta.getId());
 
         for (int index = 0; index < SIZES.size(); index++) {
             String size = SIZES.get(index);
-            if (hasSize(current, size)) {
+            CamisetaTalle existing = findBySize(current, size);
+            if (existing != null) {
+                if (forceOutOfStock && existing.getStock() != 0) {
+                    existing.setStock(0);
+                    camisetaTalleRepository.save(existing);
+                }
                 continue;
             }
 
             Talle talle = ensureTalle(size);
-            int stock = 12 - (index * 2);
+            int stock = forceOutOfStock ? 0 : 12 - (index * 2);
             String sku = (teamSlug + "-" + version + "-" + size).toUpperCase().replace(' ', '-');
             CamisetaTalle variante = new CamisetaTalle(camiseta, talle, stock, sku, color);
             camisetaTalleRepository.save(variante);
         }
     }
 
-    private boolean hasSize(List<CamisetaTalle> variants, String size) {
+    private CamisetaTalle findBySize(List<CamisetaTalle> variants, String size) {
         for (CamisetaTalle variant : variants) {
             if (variant.getTalle().getNombre().equals(size)) {
-                return true;
+                return variant;
             }
         }
-        return false;
+        return null;
     }
 
     private List<Team> teams() {
