@@ -14,6 +14,9 @@ public interface CamisetaRepository extends JpaRepository<Camiseta, Long> {
     Optional<Camiseta> findFirstByNombre(String nombre);
 
     @Query("SELECT c FROM Camiseta c " +
+            "JOIN FETCH c.pais " +
+            "JOIN FETCH c.tipoCamiseta " +
+            "JOIN FETCH c.genero " +
             "WHERE c.activo = true " +
             "AND (:paisId IS NULL OR c.pais.id = :paisId) " +
             "AND (:tipoCamisetaId IS NULL OR c.tipoCamiseta.id = :tipoCamisetaId) " +
