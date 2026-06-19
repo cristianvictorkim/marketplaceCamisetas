@@ -16,6 +16,7 @@ import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -32,19 +33,22 @@ public class AuthService {
     private final PasswordEncoder passwordEncoder;
     private final AuthenticationManager authenticationManager;
     private final JwtService jwtService;
+    private final boolean bootstrapAdminEnabled;
 
     public AuthService(UsuarioRepository usuarioRepository,
                        RolRepository rolRepository,
                        CarritoRepository carritoRepository,
                        PasswordEncoder passwordEncoder,
                        AuthenticationManager authenticationManager,
-                       JwtService jwtService) {
+                       JwtService jwtService,
+                       @Value("${app.bootstrap-admin.enabled:false}") boolean bootstrapAdminEnabled) {
         this.usuarioRepository = usuarioRepository;
         this.rolRepository = rolRepository;
         this.carritoRepository = carritoRepository;
         this.passwordEncoder = passwordEncoder;
         this.authenticationManager = authenticationManager;
         this.jwtService = jwtService;
+        this.bootstrapAdminEnabled = bootstrapAdminEnabled;
     }
 
     public AuthResponse register(AuthRegisterRequest request) {
@@ -52,6 +56,9 @@ public class AuthService {
     }
 
     public AuthResponse bootstrapAdmin(AuthRegisterRequest request) {
+        if (!bootstrapAdminEnabled) {
+            throw new BusinessException("Admin bootstrap is disabled");
+        }
         if (usuarioRepository.existsByRolNombre(ADMIN_ROLE)) {
             throw new BusinessException("Admin user already exists");
         }

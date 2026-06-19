@@ -3,20 +3,27 @@ package com.uade.tpo.marketplace.dto;
 import javax.validation.constraints.DecimalMin;
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotNull;
+import javax.validation.constraints.Pattern;
+import javax.validation.constraints.Size;
 import java.math.BigDecimal;
 
 public class CamisetaRequest {
 
     @NotBlank
+    @Size(max = 255)
     private String nombre;
 
     @NotBlank
+    @Size(max = 1000)
     private String descripcion;
 
     @NotNull
     @DecimalMin(value = "0.0", inclusive = false)
     private BigDecimal precio;
 
+    @NotBlank
+    @Size(max = 2000)
+    @Pattern(regexp = "^https?://.+", message = "Imagen must be a valid HTTP(S) URL")
     private String imagen;
 
     @NotNull

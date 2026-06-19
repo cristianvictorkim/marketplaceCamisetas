@@ -41,12 +41,9 @@ dependencias.
 
 ## Base de datos y archivo `.env`
 
-La entrega incluye `marketplace/.env` porque contiene la configuración
-necesaria para conectarse a la base PostgreSQL compartida de Neon. El script
-`start-backend.ps1` carga automáticamente sus variables.
-
-No es necesario editar ese archivo para ejecutar la entrega. Sus credenciales
-son de uso académico y no deben publicarse fuera del entorno de la materia.
+El archivo `.env` contiene la configuración privada y no se versiona. Para
+preparar el entorno, copiar `.env.example` como `.env` y completar sus valores.
+El script `start-backend.ps1` carga automáticamente esas variables.
 
 Variables utilizadas:
 
@@ -59,7 +56,17 @@ JWT_EXPIRATION_MS=86400000
 CATALOG_SEEDER_ENABLED=false
 MIGRATE_H2_TO_POSTGRES=false
 JPA_SHOW_SQL=false
+JPA_DDL_AUTO=update
+BOOTSTRAP_ADMIN_ENABLED=false
+CORS_ALLOWED_ORIGIN_PATTERNS=http://localhost:5173
+LOGGING_LEVEL_ROOT=INFO
 ```
+
+El bootstrap de administrador permanece desactivado por defecto. Solo debe
+habilitarse temporalmente en una instalación nueva sin administradores.
+
+Para un frontend desplegado, `CORS_ALLOWED_ORIGIN_PATTERNS` debe contener sus
+orígenes permitidos separados por coma.
 
 ## Credenciales de administrador
 
@@ -87,7 +94,7 @@ JPA_SHOW_SQL=false
 
 - `POST /api/auth/register`
 - `POST /api/auth/login`
-- `POST /api/auth/bootstrap-admin`
+- `POST /api/auth/bootstrap-admin` (desactivado por defecto)
 
 ### Usuarios
 

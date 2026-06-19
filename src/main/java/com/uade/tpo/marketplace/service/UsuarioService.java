@@ -18,6 +18,9 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
+import java.util.Arrays;
+import java.util.HashSet;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 @Service
@@ -25,6 +28,9 @@ import java.util.stream.Collectors;
 public class UsuarioService {
 
     private static final String DEFAULT_USER_ROLE = "USER";
+    private static final Set<String> ALLOWED_ROLES = new HashSet<String>(
+            Arrays.asList("USER", "ADMIN")
+    );
 
     private final UsuarioRepository usuarioRepository;
     private final RolRepository rolRepository;
@@ -150,7 +156,11 @@ public class UsuarioService {
         if (role == null || role.trim().isEmpty()) {
             return DEFAULT_USER_ROLE;
         }
-        return role.trim().toUpperCase();
+        String normalized = role.trim().toUpperCase();
+        if (!ALLOWED_ROLES.contains(normalized)) {
+            throw new BusinessException("Unsupported role: " + normalized);
+        }
+        return normalized;
     }
 
     private UsuarioResponse toResponse(Usuario usuario) {

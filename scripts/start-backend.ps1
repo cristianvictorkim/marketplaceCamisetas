@@ -32,6 +32,10 @@ if ($Local) {
     $env:SPRING_PROFILES_ACTIVE = "local"
 }
 
+# Evita que una variable DEBUG heredada por la terminal active el modo debug
+# global de Spring Boot y genere logs SQL excesivos.
+$env:DEBUG = "false"
+
 & "$projectRoot\mvnw.cmd" `
     -s "$projectRoot\.mvn\settings.xml" `
     "-Dmaven.compiler.fork=true" `

@@ -102,6 +102,22 @@ class PedidoServiceTest {
     }
 
     @Test
+    void rejectsUnsupportedOrderState() {
+        Pedido pedido = pedidoConUnaVariante("PENDIENTE", 10, 1);
+        PedidoEstadoUpdateRequest request = estado("DESCONOCIDO");
+
+        when(pedidoRepository.findById(1L)).thenReturn(Optional.of(pedido));
+
+        assertThrows(
+                com.uade.tpo.marketplace.exception.BusinessException.class,
+                () -> pedidoService.updateEstado(1L, request)
+        );
+
+        assertEquals("PENDIENTE", pedido.getEstado());
+        verify(pedidoRepository, never()).save(any(Pedido.class));
+    }
+
+    @Test
     void checkoutWithLastUnitCreatesOrderAndLeavesStockAtZero() {
         Usuario usuario = new Usuario();
         Camiseta camiseta = new Camiseta();

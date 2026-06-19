@@ -21,6 +21,9 @@ import org.springframework.transaction.annotation.Transactional;
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Arrays;
+import java.util.HashSet;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 @Service
@@ -28,7 +31,12 @@ import java.util.stream.Collectors;
 public class PedidoService {
 
     public static final String ESTADO_PENDIENTE = "PENDIENTE";
+    public static final String ESTADO_ENVIADO = "ENVIADO";
+    public static final String ESTADO_ENTREGADO = "ENTREGADO";
     public static final String ESTADO_CANCELADO = "CANCELADO";
+    private static final Set<String> ESTADOS_PERMITIDOS = new HashSet<String>(
+            Arrays.asList(ESTADO_PENDIENTE, ESTADO_ENVIADO, ESTADO_ENTREGADO, ESTADO_CANCELADO)
+    );
 
     private final PedidoRepository pedidoRepository;
     private final UsuarioRepository usuarioRepository;
@@ -154,8 +162,8 @@ public class PedidoService {
                 .orElseThrow(() -> new ResourceNotFoundException("Pedido not found with id " + pedidoId));
 
         String estado = request.getEstado().trim().toUpperCase();
-        if (estado.isEmpty()) {
-            throw new BusinessException("Estado is required");
+        if (!ESTADOS_PERMITIDOS.contains(estado)) {
+            throw new BusinessException("Unsupported pedido estado: " + estado);
         }
 
         if (ESTADO_CANCELADO.equalsIgnoreCase(pedido.getEstado())) {

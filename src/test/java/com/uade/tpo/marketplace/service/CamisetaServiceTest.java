@@ -2,6 +2,7 @@ package com.uade.tpo.marketplace.service;
 
 import com.uade.tpo.marketplace.dto.CamisetaCreateRequest;
 import com.uade.tpo.marketplace.dto.CamisetaTalleRequest;
+import com.uade.tpo.marketplace.exception.BusinessException;
 import com.uade.tpo.marketplace.model.Camiseta;
 import com.uade.tpo.marketplace.model.Genero;
 import com.uade.tpo.marketplace.model.Pais;
@@ -27,7 +28,9 @@ import java.util.List;
 import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
@@ -89,6 +92,24 @@ class CamisetaServiceTest {
         ArgumentCaptor<List> variantsCaptor = ArgumentCaptor.forClass(List.class);
         verify(camisetaTalleRepository).saveAll(variantsCaptor.capture());
         assertEquals(2, variantsCaptor.getValue().size());
+    }
+
+    @Test
+    void createRejectsDuplicateSkusBeforePersistingProduct() {
+        TipoCamiseta tipo = new TipoCamiseta();
+        Genero genero = new Genero();
+        Pais pais = new Pais();
+        CamisetaCreateRequest request = requestConVariantes();
+        request.getVariantes().get(1).setSku("arg-s");
+
+        when(tipoCamisetaRepository.findById(1L)).thenReturn(Optional.of(tipo));
+        when(generoRepository.findById(2L)).thenReturn(Optional.of(genero));
+        when(paisRepository.findById(3L)).thenReturn(Optional.of(pais));
+
+        assertThrows(BusinessException.class, () -> camisetaService.create(request));
+
+        verify(camisetaRepository, never()).save(any(Camiseta.class));
+        verify(camisetaTalleRepository, never()).saveAll(any());
     }
 
     private CamisetaCreateRequest requestConVariantes() {

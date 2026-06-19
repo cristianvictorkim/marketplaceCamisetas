@@ -99,10 +99,10 @@ public class CamisetaService {
         validateVariantes(request.getVariantes());
 
         Camiseta camiseta = new Camiseta(
-                request.getNombre(),
-                request.getDescripcion(),
+                request.getNombre().trim(),
+                request.getDescripcion().trim(),
                 request.getPrecio(),
-                request.getImagen(),
+                normalizeOptionalText(request.getImagen()),
                 tipoCamiseta,
                 genero,
                 pais
@@ -115,8 +115,8 @@ public class CamisetaService {
                         saved,
                         findTalle(varianteRequest.getTalleId()),
                         varianteRequest.getStock(),
-                        varianteRequest.getSku(),
-                        varianteRequest.getColor()
+                        varianteRequest.getSku().trim(),
+                        varianteRequest.getColor().trim()
                 ))
                 .collect(Collectors.toList());
         camisetaTalleRepository.saveAll(variantes);
@@ -126,10 +126,10 @@ public class CamisetaService {
 
     public CamisetaResponse update(Long id, CamisetaRequest request) {
         Camiseta camiseta = findCamiseta(id);
-        camiseta.setNombre(request.getNombre());
-        camiseta.setDescripcion(request.getDescripcion());
+        camiseta.setNombre(request.getNombre().trim());
+        camiseta.setDescripcion(request.getDescripcion().trim());
         camiseta.setPrecio(request.getPrecio());
-        camiseta.setImagen(request.getImagen());
+        camiseta.setImagen(normalizeOptionalText(request.getImagen()));
         camiseta.setTipoCamiseta(findTipoCamiseta(request.getTipoCamisetaId()));
         camiseta.setGenero(findGenero(request.getGeneroId()));
         camiseta.setPais(findPais(request.getPaisId()));
@@ -167,16 +167,29 @@ public class CamisetaService {
     public CamisetaTalleResponse createVariante(Long camisetaId, CamisetaTalleRequest request) {
         Camiseta camiseta = findCamiseta(camisetaId);
         Talle talle = findTalle(request.getTalleId());
-        CamisetaTalle variante = new CamisetaTalle(camiseta, talle, request.getStock(), request.getSku(), request.getColor());
+        validateVarianteUniqueness(camisetaId, null, null, request);
+        CamisetaTalle variante = new CamisetaTalle(
+                camiseta,
+                talle,
+                request.getStock(),
+                request.getSku().trim(),
+                request.getColor().trim()
+        );
         return toVarianteResponse(camisetaTalleRepository.save(variante));
     }
 
     public CamisetaTalleResponse updateVariante(Long id, CamisetaTalleRequest request) {
         CamisetaTalle variante = findVariante(id);
+        validateVarianteUniqueness(
+                variante.getCamiseta().getId(),
+                id,
+                variante.getSku(),
+                request
+        );
         variante.setTalle(findTalle(request.getTalleId()));
         variante.setStock(request.getStock());
-        variante.setSku(request.getSku());
-        variante.setColor(request.getColor());
+        variante.setSku(request.getSku().trim());
+        variante.setColor(request.getColor().trim());
         return toVarianteResponse(camisetaTalleRepository.save(variante));
     }
 
@@ -265,7 +278,45 @@ public class CamisetaService {
             if (!skus.add(variante.getSku().trim().toLowerCase())) {
                 throw new BusinessException("Duplicate SKU in variantes");
             }
+            if (camisetaTalleRepository.existsBySkuIgnoreCase(variante.getSku().trim())) {
+                throw new BusinessException("SKU already exists: " + variante.getSku().trim());
+            }
         }
+    }
+
+    private void validateVarianteUniqueness(Long camisetaId,
+                                            Long varianteId,
+                                            String currentSku,
+                                            CamisetaTalleRequest request) {
+        boolean duplicatedTalle = varianteId == null
+                ? camisetaTalleRepository.existsByCamisetaIdAndTalleId(camisetaId, request.getTalleId())
+                : camisetaTalleRepository.existsByCamisetaIdAndTalleIdAndIdNot(
+                        camisetaId,
+                        request.getTalleId(),
+                        varianteId
+                );
+        if (duplicatedTalle) {
+            throw new BusinessException("Camiseta already has a variante for this talle");
+        }
+
+        String sku = request.getSku().trim();
+        if (currentSku != null && currentSku.equalsIgnoreCase(sku)) {
+            return;
+        }
+        boolean duplicatedSku = varianteId == null
+                ? camisetaTalleRepository.existsBySkuIgnoreCase(sku)
+                : camisetaTalleRepository.existsBySkuIgnoreCaseAndIdNot(sku, varianteId);
+        if (duplicatedSku) {
+            throw new BusinessException("SKU already exists: " + sku);
+        }
+    }
+
+    private String normalizeOptionalText(String value) {
+        if (value == null) {
+            return null;
+        }
+        String normalized = value.trim();
+        return normalized.isEmpty() ? null : normalized;
     }
 
     private String normalizeSearch(String search) {

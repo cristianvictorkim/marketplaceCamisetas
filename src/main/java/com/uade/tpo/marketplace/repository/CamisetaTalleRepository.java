@@ -14,6 +14,14 @@ public interface CamisetaTalleRepository extends JpaRepository<CamisetaTalle, Lo
 
     List<CamisetaTalle> findByCamisetaId(Long camisetaId);
 
+    boolean existsByCamisetaIdAndTalleId(Long camisetaId, Long talleId);
+
+    boolean existsByCamisetaIdAndTalleIdAndIdNot(Long camisetaId, Long talleId, Long id);
+
+    boolean existsBySkuIgnoreCase(String sku);
+
+    boolean existsBySkuIgnoreCaseAndIdNot(String sku, Long id);
+
     @Lock(LockModeType.PESSIMISTIC_WRITE)
     @Query("SELECT variante FROM CamisetaTalle variante WHERE variante.id = :id")
     Optional<CamisetaTalle> findByIdForUpdate(@Param("id") Long id);

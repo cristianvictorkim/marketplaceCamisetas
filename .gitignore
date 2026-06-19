@@ -2,6 +2,7 @@ target/
 .tools/
 .m2/
 data/
+.env
 
 *.class
 *.log
