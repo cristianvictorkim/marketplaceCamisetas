@@ -1,6 +1,7 @@
 package com.uade.tpo.marketplace.service;
 
 import com.uade.tpo.marketplace.dto.CamisetaRequest;
+import com.uade.tpo.marketplace.dto.CamisetaCreateRequest;
 import com.uade.tpo.marketplace.dto.CamisetaResponse;
 import com.uade.tpo.marketplace.dto.CamisetaTalleRequest;
 import com.uade.tpo.marketplace.dto.CamisetaTalleResponse;
@@ -28,7 +29,9 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigDecimal;
 import java.util.Comparator;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 @Service
@@ -89,10 +92,11 @@ public class CamisetaService {
         return toResponse(findCamiseta(id));
     }
 
-    public CamisetaResponse create(CamisetaRequest request) {
+    public CamisetaResponse create(CamisetaCreateRequest request) {
         TipoCamiseta tipoCamiseta = findTipoCamiseta(request.getTipoCamisetaId());
         Genero genero = findGenero(request.getGeneroId());
         Pais pais = findPais(request.getPaisId());
+        validateVariantes(request.getVariantes());
 
         Camiseta camiseta = new Camiseta(
                 request.getNombre(),
@@ -104,7 +108,20 @@ public class CamisetaService {
                 pais
         );
 
-        return toResponse(camisetaRepository.save(camiseta));
+        Camiseta saved = camisetaRepository.save(camiseta);
+        List<CamisetaTalle> variantes = request.getVariantes()
+                .stream()
+                .map(varianteRequest -> new CamisetaTalle(
+                        saved,
+                        findTalle(varianteRequest.getTalleId()),
+                        varianteRequest.getStock(),
+                        varianteRequest.getSku(),
+                        varianteRequest.getColor()
+                ))
+                .collect(Collectors.toList());
+        camisetaTalleRepository.saveAll(variantes);
+
+        return toResponse(saved);
     }
 
     public CamisetaResponse update(Long id, CamisetaRequest request) {
@@ -234,6 +251,20 @@ public class CamisetaService {
     private void validatePriceRange(BigDecimal minPrecio, BigDecimal maxPrecio) {
         if (minPrecio != null && maxPrecio != null && minPrecio.compareTo(maxPrecio) > 0) {
             throw new BusinessException("Min precio cannot be greater than max precio");
+        }
+    }
+
+    private void validateVariantes(List<CamisetaTalleRequest> variantes) {
+        Set<Long> talleIds = new HashSet<Long>();
+        Set<String> skus = new HashSet<String>();
+
+        for (CamisetaTalleRequest variante : variantes) {
+            if (!talleIds.add(variante.getTalleId())) {
+                throw new BusinessException("Duplicate talle in variantes");
+            }
+            if (!skus.add(variante.getSku().trim().toLowerCase())) {
+                throw new BusinessException("Duplicate SKU in variantes");
+            }
         }
     }
 

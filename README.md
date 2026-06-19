@@ -101,6 +101,8 @@ JPA_SHOW_SQL=false
 
 - `GET /api/camisetas`
 - `GET /api/camisetas/{id}`
+- `POST /api/camisetas`: crea la camiseta y todas sus variantes en una única
+  transacción.
 - `/api/camisetas/**`: gestión administrativa.
 - `/api/catalogo/generos`
 - `/api/catalogo/talles`

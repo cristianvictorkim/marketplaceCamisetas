@@ -1,6 +1,7 @@
 package com.uade.tpo.marketplace.controller;
 
 import com.uade.tpo.marketplace.dto.CamisetaRequest;
+import com.uade.tpo.marketplace.dto.CamisetaCreateRequest;
 import com.uade.tpo.marketplace.dto.CamisetaResponse;
 import com.uade.tpo.marketplace.dto.CamisetaTalleRequest;
 import com.uade.tpo.marketplace.dto.CamisetaTalleResponse;
@@ -63,7 +64,7 @@ public class CamisetaController {
 
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
-    public CamisetaResponse create(@Valid @RequestBody CamisetaRequest request) {
+    public CamisetaResponse create(@Valid @RequestBody CamisetaCreateRequest request) {
         return camisetaService.create(request);
     }
 
