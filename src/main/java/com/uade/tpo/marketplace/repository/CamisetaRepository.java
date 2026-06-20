@@ -15,10 +15,12 @@ public interface CamisetaRepository extends JpaRepository<Camiseta, Long> {
 
     List<Camiseta> findByGeneroId(Long generoId);
 
-    @Query("SELECT c FROM Camiseta c " +
+    @Query("SELECT DISTINCT c FROM Camiseta c " +
             "JOIN FETCH c.pais " +
             "JOIN FETCH c.tipoCamiseta " +
             "JOIN FETCH c.genero " +
+            "LEFT JOIN FETCH c.variantes variante " +
+            "LEFT JOIN FETCH variante.talle " +
             "WHERE c.activo = true " +
             "AND (:paisId IS NULL OR c.pais.id = :paisId) " +
             "AND (:tipoCamisetaId IS NULL OR c.tipoCamiseta.id = :tipoCamisetaId) " +

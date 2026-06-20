@@ -86,6 +86,8 @@ class CamisetaServiceTest {
         when(talleRepository.findById(11L)).thenReturn(Optional.of(medium));
         when(camisetaRepository.save(any(Camiseta.class)))
                 .thenAnswer(invocation -> invocation.getArgument(0));
+        when(camisetaTalleRepository.saveAll(any()))
+                .thenAnswer(invocation -> invocation.getArgument(0));
 
         camisetaService.create(request);
 

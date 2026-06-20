@@ -1,6 +1,5 @@
 package com.uade.tpo.marketplace.controller;
 
-import com.uade.tpo.marketplace.dto.CamisetaRequest;
 import com.uade.tpo.marketplace.dto.CamisetaCreateRequest;
 import com.uade.tpo.marketplace.dto.CamisetaResponse;
 import com.uade.tpo.marketplace.dto.CamisetaTalleRequest;
@@ -69,7 +68,7 @@ public class CamisetaController {
     }
 
     @PutMapping("/{id}")
-    public CamisetaResponse update(@PathVariable Long id, @Valid @RequestBody CamisetaRequest request) {
+    public CamisetaResponse update(@PathVariable Long id, @Valid @RequestBody CamisetaCreateRequest request) {
         return camisetaService.update(id, request);
     }
 

@@ -1,6 +1,5 @@
 package com.uade.tpo.marketplace.service;
 
-import com.uade.tpo.marketplace.dto.CamisetaRequest;
 import com.uade.tpo.marketplace.dto.CamisetaCreateRequest;
 import com.uade.tpo.marketplace.dto.CamisetaResponse;
 import com.uade.tpo.marketplace.dto.CamisetaTalleRequest;
@@ -119,13 +118,14 @@ public class CamisetaService {
                         varianteRequest.getColor().trim()
                 ))
                 .collect(Collectors.toList());
-        camisetaTalleRepository.saveAll(variantes);
+        List<CamisetaTalle> savedVariantes = camisetaTalleRepository.saveAll(variantes);
 
-        return toResponse(saved);
+        return toResponse(saved, savedVariantes);
     }
 
-    public CamisetaResponse update(Long id, CamisetaRequest request) {
+    public CamisetaResponse update(Long id, CamisetaCreateRequest request) {
         Camiseta camiseta = findCamiseta(id);
+        validateRequestedVariants(request.getVariantes());
         camiseta.setNombre(request.getNombre().trim());
         camiseta.setDescripcion(request.getDescripcion().trim());
         camiseta.setPrecio(request.getPrecio());
@@ -133,7 +133,9 @@ public class CamisetaService {
         camiseta.setTipoCamiseta(findTipoCamiseta(request.getTipoCamisetaId()));
         camiseta.setGenero(findGenero(request.getGeneroId()));
         camiseta.setPais(findPais(request.getPaisId()));
-        return toResponse(camisetaRepository.save(camiseta));
+        Camiseta saved = camisetaRepository.save(camiseta);
+        List<CamisetaTalle> synchronizedVariants = synchronizeVariants(saved, request.getVariantes());
+        return toResponse(saved, synchronizedVariants);
     }
 
     public void delete(Long id) {
@@ -268,6 +270,16 @@ public class CamisetaService {
     }
 
     private void validateVariantes(List<CamisetaTalleRequest> variantes) {
+        validateRequestedVariants(variantes);
+
+        for (CamisetaTalleRequest variante : variantes) {
+            if (camisetaTalleRepository.existsBySkuIgnoreCase(variante.getSku().trim())) {
+                throw new BusinessException("SKU already exists: " + variante.getSku().trim());
+            }
+        }
+    }
+
+    private void validateRequestedVariants(List<CamisetaTalleRequest> variantes) {
         Set<Long> talleIds = new HashSet<Long>();
         Set<String> skus = new HashSet<String>();
 
@@ -278,10 +290,53 @@ public class CamisetaService {
             if (!skus.add(variante.getSku().trim().toLowerCase())) {
                 throw new BusinessException("Duplicate SKU in variantes");
             }
-            if (camisetaTalleRepository.existsBySkuIgnoreCase(variante.getSku().trim())) {
-                throw new BusinessException("SKU already exists: " + variante.getSku().trim());
+        }
+    }
+
+    private List<CamisetaTalle> synchronizeVariants(Camiseta camiseta,
+                                                    List<CamisetaTalleRequest> requests) {
+        List<CamisetaTalle> existing = camisetaTalleRepository.findByCamisetaId(camiseta.getId());
+        Set<Long> requestedTalleIds = requests.stream()
+                .map(CamisetaTalleRequest::getTalleId)
+                .collect(Collectors.toSet());
+
+        for (CamisetaTalle variante : existing) {
+            if (!requestedTalleIds.contains(variante.getTalle().getId())) {
+                camisetaTalleRepository.delete(variante);
             }
         }
+
+        List<CamisetaTalle> synchronizedVariants = requests.stream()
+                .map(request -> {
+                    CamisetaTalle variante = findByTalleId(existing, request.getTalleId());
+                    if (variante == null) {
+                        validateVarianteUniqueness(camiseta.getId(), null, null, request);
+                        variante = new CamisetaTalle();
+                        variante.setCamiseta(camiseta);
+                    } else {
+                        validateVarianteUniqueness(
+                                camiseta.getId(),
+                                variante.getId(),
+                                variante.getSku(),
+                                request
+                        );
+                    }
+                    variante.setTalle(findTalle(request.getTalleId()));
+                    variante.setStock(request.getStock());
+                    variante.setSku(request.getSku().trim());
+                    variante.setColor(request.getColor().trim());
+                    return variante;
+                })
+                .collect(Collectors.toList());
+
+        return camisetaTalleRepository.saveAll(synchronizedVariants);
+    }
+
+    private CamisetaTalle findByTalleId(List<CamisetaTalle> variants, Long talleId) {
+        return variants.stream()
+                .filter(variante -> variante.getTalle().getId().equals(talleId))
+                .findFirst()
+                .orElse(null);
     }
 
     private void validateVarianteUniqueness(Long camisetaId,
@@ -362,6 +417,10 @@ public class CamisetaService {
     }
 
     private CamisetaResponse toResponse(Camiseta camiseta) {
+        return toResponse(camiseta, camiseta.getVariantes());
+    }
+
+    private CamisetaResponse toResponse(Camiseta camiseta, List<CamisetaTalle> variantes) {
         return new CamisetaResponse(
                 camiseta.getId(),
                 camiseta.getNombre(),
@@ -371,7 +430,10 @@ public class CamisetaService {
                 camiseta.isActivo(),
                 camiseta.getTipoCamiseta().getNombre(),
                 camiseta.getGenero().getNombre(),
-                camiseta.getPais().getNombre()
+                camiseta.getPais().getNombre(),
+                variantes.stream()
+                        .map(this::toVarianteResponse)
+                        .collect(Collectors.toList())
         );
     }
 

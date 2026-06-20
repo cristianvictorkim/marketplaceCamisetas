@@ -109,7 +109,9 @@ orígenes permitidos separados por coma.
 - `GET /api/camisetas`
 - `GET /api/camisetas/{id}`
 - `POST /api/camisetas`: crea la camiseta y todas sus variantes en una única
-  transacción.
+  transacción y devuelve el producto completo.
+- `PUT /api/camisetas/{id}`: sincroniza producto y variantes en una única
+  transacción y devuelve el producto actualizado.
 - `/api/camisetas/**`: gestión administrativa.
 - `/api/catalogo/generos`
 - `/api/catalogo/talles`

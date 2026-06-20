@@ -1,6 +1,7 @@
 package com.uade.tpo.marketplace.dto;
 
 import java.math.BigDecimal;
+import java.util.List;
 
 public class CamisetaResponse {
 
@@ -13,9 +14,11 @@ public class CamisetaResponse {
     private String tipoCamiseta;
     private String genero;
     private String pais;
+    private List<CamisetaTalleResponse> variantes;
 
     public CamisetaResponse(Long id, String nombre, String descripcion, BigDecimal precio, String imagen,
-                            boolean activo, String tipoCamiseta, String genero, String pais) {
+                            boolean activo, String tipoCamiseta, String genero, String pais,
+                            List<CamisetaTalleResponse> variantes) {
         this.id = id;
         this.nombre = nombre;
         this.descripcion = descripcion;
@@ -25,6 +28,7 @@ public class CamisetaResponse {
         this.tipoCamiseta = tipoCamiseta;
         this.genero = genero;
         this.pais = pais;
+        this.variantes = variantes;
     }
 
     public Long getId() {
@@ -61,5 +65,9 @@ public class CamisetaResponse {
 
     public String getPais() {
         return pais;
+    }
+
+    public List<CamisetaTalleResponse> getVariantes() {
+        return variantes;
     }
 }
