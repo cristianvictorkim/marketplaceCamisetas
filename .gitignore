@@ -3,6 +3,7 @@ target/
 .m2/
 data/
 .env
+.env*.backup
 
 *.class
 *.log
